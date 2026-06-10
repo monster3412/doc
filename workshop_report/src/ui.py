@@ -72,7 +72,8 @@ class ReportApp(tk.Tk):
         main = tk.Frame(self, bg="#07111f", padx=16, pady=16)
         main.grid(row=0, column=1, sticky="nsew")
         main.columnconfigure(0, weight=1)
-        main.rowconfigure(4, weight=1)
+        main.rowconfigure(4, weight=0)
+        main.rowconfigure(5, weight=0)
 
         tk.Label(sidebar, text="WorkshopReport", fg="#f8fafc", bg="#0b1220", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, sticky="w")
         tk.Label(sidebar, text="Импорт и управление отчётами", fg="#bfdbfe", bg="#0b1220", font=("Segoe UI", 10)).grid(row=1, column=0, sticky="w", pady=(4, 12))
@@ -211,7 +212,7 @@ class ReportApp(tk.Tk):
         self.html_btn.pack(side="left")
 
         self.chart_frame = tk.Frame(main, bg="#0a1628", bd=0, padx=14, pady=14)
-        self.chart_frame.grid(row=5, column=0, sticky="nsew", pady=(12, 0))
+        self.chart_frame.grid(row=5, column=0, sticky="ew", pady=(12, 0))
         self.chart_frame.columnconfigure(0, weight=1)
         self.chart_frame.rowconfigure(0, weight=1)
         self.empty_state = tk.Frame(self.chart_frame, bg="#0a1628")
@@ -229,26 +230,21 @@ class ReportApp(tk.Tk):
             messagebox.showerror("Ошибка загрузки", str(exc))
 
     def import_documents(self) -> None:
-        """Импортирует план и факт через одну зелёную кнопку."""
-        paths = filedialog.askopenfilenames(
-            title="Выберите файлы плана и факта",
+        """Импортирует план и факт через одну кнопку, по одному файлу за раз."""
+        plan_path = filedialog.askopenfilename(
+            title="Выберите файл плана (.xlsx)",
             initialdir=str(self.default_plans_path.parent),
-            filetypes=[("Excel", "*.xlsx"), ("CSV", "*.csv"), ("Все файлы", "*.*")],
+            filetypes=[("Excel", "*.xlsx"), ("Все файлы", "*.*")],
         )
-        if not paths:
+        if not plan_path:
             return
 
-        plan_path = None
-        fact_path = None
-        for path in paths:
-            suffix = Path(path).suffix.lower()
-            if suffix == ".xlsx":
-                plan_path = path
-            elif suffix == ".csv":
-                fact_path = path
-
-        if plan_path is None or fact_path is None:
-            messagebox.showwarning("Импорт", "Нужно выбрать оба файла: XLSX для плана и CSV для факта.")
+        fact_path = filedialog.askopenfilename(
+            title="Выберите файл факта (.csv)",
+            initialdir=str(self.default_facts_path.parent),
+            filetypes=[("CSV", "*.csv"), ("Все файлы", "*.*")],
+        )
+        if not fact_path:
             return
 
         self.plan_path_var.set(plan_path)
@@ -256,11 +252,25 @@ class ReportApp(tk.Tk):
         self.load_selected_data()
 
     def clear_file(self, kind: str) -> None:
-        """Очищает выбранный файл в sidebar."""
+        """Очищает выбранный файл в sidebar и сбрасывает состояние отчёта."""
         if kind == "plan":
-            self.plan_path_var.set("Пока не выбран")
+            self.plan_path_var.set("")
         else:
-            self.fact_path_var.set("Пока не выбран")
+            self.fact_path_var.set("")
+
+        self._render_status_chip("Файлы не выбраны", "#7c2d12", "#fed7aa")
+        self.plans_df = None
+        self.facts_df = None
+        self.metrics_df = None
+        self.current_figure = None
+        self._update_kpis(None)
+        self.excel_btn.config(state="disabled")
+        self.pdf_btn.config(state="disabled")
+        self.html_btn.config(state="disabled")
+        if self.canvas is not None:
+            self.canvas.get_tk_widget().destroy()
+            self.canvas = None
+        self.empty_state.grid(row=0, column=0, sticky="nsew")
 
     def load_selected_data(self) -> None:
         """Загружает выбранные пользователем файлы."""
