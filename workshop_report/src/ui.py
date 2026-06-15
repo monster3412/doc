@@ -1,6 +1,15 @@
 # === ФАЙЛ: src/ui.py ===
-"""Главный интерфейс приложения на tkinter — адаптивный визуал + переключатель тем."""
+"""
+WorkshopReport 
+"""
 
+import csv
+import io
+import json
+import os
+import webbrowser
+import tempfile
+from datetime import datetime
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 import tkinter as tk
@@ -8,575 +17,897 @@ from typing import Optional
 
 import matplotlib
 matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.gridspec as gridspec
 
-from src.calculator import calculate_metrics
-from src.charts import build_charts
-from src.exporter import _safe_output_name, export_excel, export_html, export_pdf
-from src.loader import DATA_DIR, load_facts, load_plans
+try:
+    import pandas as pd
+    HAS_PANDAS = True
+except ImportError:
+    HAS_PANDAS = False
 
 
-# ── Палитры тем ──────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+#  ЦВЕТА / ТЕМЫ
+# ══════════════════════════════════════════════════════════════════════════════
+
 THEMES = {
     "light": {
-        "bg":            "#f0f4f8",
-        "surface":       "#ffffff",
-        "surface2":      "#f7f9fc",
-        "sidebar_bg":    "#ffffff",
-        "card_bg":       "#ffffff",
-        "border":        "#e2e8f0",
-        "text":          "#1a202c",
-        "text_muted":    "#718096",
-        "accent":        "#3b5bdb",
-        "accent_soft":   "#dbe4ff",
-        "green":         "#2f9e44",
-        "green_soft":    "#d3f9d8",
-        "red":           "#c92a2a",
-        "red_soft":      "#ffe3e3",
-        "yellow":        "#e67700",
-        "yellow_soft":   "#fff3bf",
-        "chip_bg":       "#3b5bdb",
-        "chip_fg":       "#ffffff",
-        "btn_import_bg": "#2f9e44",
-        "btn_import_fg": "#ffffff",
-        "btn_ghost_bg":  "#f0f4f8",
-        "btn_ghost_fg":  "#3b5bdb",
-        "entry_bg":      "#f7f9fc",
-        "entry_fg":      "#1a202c",
-        "toggle_text":   "☀️  Светлая тема",
-        "sash":          "#e2e8f0",
+        "bg":           "#f0f4f8",
+        "surface":      "#ffffff",
+        "surface2":     "#f7f9fc",
+        "sidebar_bg":   "#ffffff",
+        "card_bg":      "#ffffff",
+        "border":       "#e2e8f0",
+        "text":         "#1a202c",
+        "muted":        "#718096",
+        "accent":       "#3b5bdb",
+        "accent_soft":  "#dbe4ff",
+        "green":        "#2f9e44",
+        "green_soft":   "#d3f9d8",
+        "red":          "#c92a2a",
+        "red_soft":     "#ffe3e3",
+        "yellow":       "#e67700",
+        "yellow_soft":  "#fff3bf",
+        "chip_bg":      "#3b5bdb",
+        "chip_fg":      "#ffffff",
+        "import_bg":    "#2f9e44",
+        "import_fg":    "#ffffff",
+        "ghost_bg":     "#f0f4f8",
+        "ghost_fg":     "#3b5bdb",
+        "entry_bg":     "#f7f9fc",
+        "entry_fg":     "#1a202c",
+        "sash":         "#e2e8f0",
+        "toggle_text":  "☀️  Светлая тема",
+        # matplotlib
+        "mpl_bg":       "#ffffff",
+        "mpl_axes":     "#f7f9fc",
+        "mpl_grid":     "#e2e8f0",
+        "mpl_text":     "#1a202c",
+        "mpl_tick":     "#718096",
     },
     "dark": {
-        "bg":            "#0f1117",
-        "surface":       "#1a1d27",
-        "surface2":      "#22263a",
-        "sidebar_bg":    "#0d1b2e",
-        "card_bg":       "#111d33",
-        "border":        "#2d3250",
-        "text":          "#e8eaf6",
-        "text_muted":    "#7986cb",
-        "accent":        "#748ffc",
-        "accent_soft":   "#1c2260",
-        "green":         "#69db7c",
-        "green_soft":    "#1a3d23",
-        "red":           "#ff8787",
-        "red_soft":      "#3d1a1a",
-        "yellow":        "#ffd43b",
-        "yellow_soft":   "#3d3000",
-        "chip_bg":       "#3b5bdb",
-        "chip_fg":       "#ffffff",
-        "btn_import_bg": "#16a34a",
-        "btn_import_fg": "#f8fafc",
-        "btn_ghost_bg":  "#111827",
-        "btn_ghost_fg":  "#dbeafe",
-        "entry_bg":      "#111d33",
-        "entry_fg":      "#e2e8f0",
-        "toggle_text":   "🌙  Тёмная тема",
-        "sash":          "#2d3250",
+        "bg":           "#0f1117",
+        "surface":      "#1a1d27",
+        "surface2":     "#22263a",
+        "sidebar_bg":   "#0d1b2e",
+        "card_bg":      "#111d33",
+        "border":       "#2d3250",
+        "text":         "#e8eaf6",
+        "muted":        "#7986cb",
+        "accent":       "#748ffc",
+        "accent_soft":  "#1c2260",
+        "green":        "#69db7c",
+        "green_soft":   "#1a3d23",
+        "red":          "#ff8787",
+        "red_soft":     "#3d1a1a",
+        "yellow":       "#ffd43b",
+        "yellow_soft":  "#3d3000",
+        "chip_bg":      "#3b5bdb",
+        "chip_fg":      "#ffffff",
+        "import_bg":    "#16a34a",
+        "import_fg":    "#f8fafc",
+        "ghost_bg":     "#111827",
+        "ghost_fg":     "#dbeafe",
+        "entry_bg":     "#111d33",
+        "entry_fg":     "#e2e8f0",
+        "sash":         "#2d3250",
+        "toggle_text":  "🌙  Тёмная тема",
+        "mpl_bg":       "#1a1d27",
+        "mpl_axes":     "#22263a",
+        "mpl_grid":     "#2d3250",
+        "mpl_text":     "#e8eaf6",
+        "mpl_tick":     "#7986cb",
     },
 }
 
-FONT_UI   = ("Segoe UI", 10)
+PALETTE = ["#3b5bdb","#2f9e44","#e67700","#c92a2a","#7950f2",
+           "#1098ad","#f59f00","#d6336c","#099268","#c92a2a"]
+
+FONT_LOGO = ("Segoe UI", 15, "bold")
 FONT_BOLD = ("Segoe UI", 10, "bold")
+FONT_UI   = ("Segoe UI", 10)
 FONT_SM   = ("Segoe UI", 9)
 FONT_SM_B = ("Segoe UI", 9, "bold")
 FONT_XS   = ("Segoe UI", 8)
-FONT_NUM  = ("Arial",    28, "bold")
-FONT_LOGO = ("Segoe UI", 15, "bold")
+FONT_NUM  = ("Arial",    26, "bold")
 
 
-def _sep(parent, T):
-    """Тонкий горизонтальный разделитель."""
-    f = tk.Frame(parent, height=1, bg=T["border"])
-    return f
+# ══════════════════════════════════════════════════════════════════════════════
+#  ВСТРОЕННЫЙ ДАТАСЕТ
+# ══════════════════════════════════════════════════════════════════════════════
 
+BUILTIN: list[list] = [
+    ["Цех 1","2025-01","Деталь А",103,111],
+    ["Цех 1","2025-01","Узел Б",93,118],
+    ["Цех 1","2025-01","Корпус В",105,105],
+    ["Цех 1","2025-02","Деталь А",97,80],
+    ["Цех 1","2025-02","Узел Б",92,121],
+    ["Цех 1","2025-02","Корпус В",105,87],
+    ["Цех 1","2025-03","Деталь А",112,82],
+    ["Цех 1","2025-03","Узел Б",89,107],
+    ["Цех 1","2025-03","Корпус В",86,106],
+    ["Цех 1","2025-04","Деталь А",104,114],
+    ["Цех 1","2025-04","Узел Б",81,106],
+    ["Цех 1","2025-04","Корпус В",114,101],
+    ["Цех 1","2025-05","Деталь А",90,86],
+    ["Цех 1","2025-05","Узел Б",94,87],
+    ["Цех 1","2025-05","Корпус В",117,98],
+    ["Цех 1","2025-06","Деталь А",109,96],
+    ["Цех 1","2025-06","Узел Б",119,77],
+    ["Цех 1","2025-06","Корпус В",91,105],
+    ["Цех 1","2025-07","Деталь А",107,111],
+    ["Цех 1","2025-07","Узел Б",98,89],
+    ["Цех 1","2025-07","Корпус В",111,0],
+    ["Цех 1","2025-08","Деталь А",83,91],
+    ["Цех 1","2025-08","Узел Б",86,86],
+    ["Цех 1","2025-08","Корпус В",117,85],
+    ["Цех 1","2025-09","Деталь А",86,105],
+    ["Цех 1","2025-09","Узел Б",80,128],
+    ["Цех 1","2025-09","Корпус В",118,113],
+    ["Цех 1","2025-10","Деталь А",102,97],
+    ["Цех 1","2025-10","Узел Б",105,100],
+    ["Цех 1","2025-10","Корпус В",93,107],
+    ["Цех 1","2025-11","Деталь А",89,92],
+    ["Цех 1","2025-11","Узел Б",109,95],
+    ["Цех 1","2025-11","Корпус В",118,116],
+    ["Цех 1","2025-12","Деталь А",103,107],
+    ["Цех 1","2025-12","Узел Б",110,91],
+    ["Цех 1","2025-12","Корпус В",111,110],
+    ["Цех 2","2025-01","Деталь А",95,92],
+    ["Цех 2","2025-01","Узел Б",90,0],
+    ["Цех 2","2025-01","Корпус В",82,89],
+    ["Цех 2","2025-02","Деталь А",86,82],
+    ["Цех 2","2025-02","Узел Б",104,77],
+    ["Цех 2","2025-02","Корпус В",105,0],
+    ["Цех 2","2025-03","Деталь А",89,85],
+    ["Цех 2","2025-03","Узел Б",84,87],
+    ["Цех 2","2025-03","Корпус В",108,111],
+    ["Цех 2","2025-04","Деталь А",98,0],
+    ["Цех 2","2025-04","Узел Б",81,89],
+    ["Цех 2","2025-04","Корпус В",99,109],
+    ["Цех 2","2025-05","Деталь А",106,87],
+    ["Цех 2","2025-05","Узел Б",92,116],
+    ["Цех 2","2025-05","Корпус В",82,104],
+    ["Цех 2","2025-06","Деталь А",102,105],
+    ["Цех 2","2025-06","Узел Б",113,88],
+    ["Цех 2","2025-06","Корпус В",85,94],
+    ["Цех 2","2025-07","Деталь А",117,0],
+    ["Цех 2","2025-07","Узел Б",111,134],
+    ["Цех 2","2025-07","Корпус В",93,119],
+    ["Цех 2","2025-08","Деталь А",82,124],
+    ["Цех 2","2025-08","Узел Б",103,123],
+    ["Цех 2","2025-08","Корпус В",83,70],
+    ["Цех 2","2025-09","Деталь А",112,93],
+    ["Цех 2","2025-09","Узел Б",89,114],
+    ["Цех 2","2025-09","Корпус В",96,89],
+    ["Цех 2","2025-10","Деталь А",100,114],
+    ["Цех 2","2025-10","Узел Б",98,70],
+    ["Цех 2","2025-10","Корпус В",109,98],
+    ["Цех 2","2025-11","Деталь А",116,98],
+    ["Цех 2","2025-11","Узел Б",100,99],
+    ["Цех 2","2025-11","Корпус В",110,105],
+    ["Цех 2","2025-12","Деталь А",92,103],
+    ["Цех 2","2025-12","Узел Б",95,90],
+    ["Цех 2","2025-12","Корпус В",110,86],
+    ["Цех 3","2025-01","Деталь А",83,102],
+    ["Цех 3","2025-01","Узел Б",98,88],
+    ["Цех 3","2025-01","Корпус В",102,125],
+    ["Цех 3","2025-02","Деталь А",86,0],
+    ["Цех 3","2025-02","Узел Б",91,89],
+    ["Цех 3","2025-02","Корпус В",113,99],
+    ["Цех 3","2025-03","Деталь А",109,82],
+    ["Цех 3","2025-03","Узел Б",86,93],
+    ["Цех 3","2025-03","Корпус В",113,0],
+    ["Цех 3","2025-04","Деталь А",92,119],
+    ["Цех 3","2025-04","Узел Б",117,0],
+    ["Цех 3","2025-04","Корпус В",114,93],
+    ["Цех 3","2025-05","Деталь А",107,84],
+    ["Цех 3","2025-05","Узел Б",115,100],
+    ["Цех 3","2025-05","Корпус В",94,95],
+    ["Цех 3","2025-06","Деталь А",98,95],
+    ["Цех 3","2025-06","Узел Б",91,97],
+    ["Цех 3","2025-06","Корпус В",99,113],
+    ["Цех 3","2025-07","Деталь А",115,110],
+    ["Цех 3","2025-07","Узел Б",110,110],
+    ["Цех 3","2025-07","Корпус В",111,0],
+    ["Цех 3","2025-08","Деталь А",118,92],
+    ["Цех 3","2025-08","Узел Б",98,78],
+    ["Цех 3","2025-08","Корпус В",90,116],
+    ["Цех 3","2025-09","Деталь А",114,82],
+    ["Цех 3","2025-09","Узел Б",111,82],
+    ["Цех 3","2025-09","Корпус В",106,110],
+    ["Цех 3","2025-10","Деталь А",109,109],
+    ["Цех 3","2025-10","Узел Б",94,96],
+    ["Цех 3","2025-10","Корпус В",118,110],
+    ["Цех 3","2025-11","Деталь А",89,131],
+    ["Цех 3","2025-11","Узел Б",103,112],
+    ["Цех 3","2025-11","Корпус В",115,90],
+    ["Цех 3","2025-12","Деталь А",100,84],
+    ["Цех 3","2025-12","Узел Б",96,97],
+    ["Цех 3","2025-12","Корпус В",86,104],
+    ["Цех 4","2025-01","Деталь А",96,89],
+    ["Цех 4","2025-01","Узел Б",83,92],
+    ["Цех 4","2025-01","Корпус В",115,99],
+    ["Цех 4","2025-02","Деталь А",87,90],
+    ["Цех 4","2025-02","Узел Б",115,109],
+    ["Цех 4","2025-02","Корпус В",85,98],
+    ["Цех 4","2025-03","Деталь А",83,100],
+    ["Цех 4","2025-03","Узел Б",96,117],
+    ["Цех 4","2025-03","Корпус В",113,82],
+    ["Цех 4","2025-04","Деталь А",93,89],
+    ["Цех 4","2025-04","Узел Б",106,104],
+    ["Цех 4","2025-04","Корпус В",106,70],
+    ["Цех 4","2025-05","Деталь А",114,117],
+    ["Цех 4","2025-05","Узел Б",113,121],
+    ["Цех 4","2025-05","Корпус В",90,84],
+    ["Цех 4","2025-06","Деталь А",118,92],
+    ["Цех 4","2025-06","Узел Б",89,88],
+    ["Цех 4","2025-06","Корпус В",105,104],
+    ["Цех 4","2025-07","Деталь А",104,114],
+    ["Цех 4","2025-07","Узел Б",90,124],
+    ["Цех 4","2025-07","Корпус В",91,107],
+    ["Цех 4","2025-08","Деталь А",84,69],
+    ["Цех 4","2025-08","Узел Б",83,95],
+    ["Цех 4","2025-08","Корпус В",93,89],
+    ["Цех 4","2025-09","Деталь А",101,109],
+    ["Цех 4","2025-09","Узел Б",112,100],
+    ["Цех 4","2025-09","Корпус В",116,87],
+    ["Цех 4","2025-10","Деталь А",114,86],
+    ["Цех 4","2025-10","Узел Б",80,75],
+    ["Цех 4","2025-10","Корпус В",119,118],
+    ["Цех 4","2025-11","Деталь А",93,90],
+    ["Цех 4","2025-11","Узел Б",89,115],
+    ["Цех 4","2025-11","Корпус В",85,90],
+    ["Цех 4","2025-12","Деталь А",87,112],
+    ["Цех 4","2025-12","Узел Б",85,86],
+    ["Цех 4","2025-12","Корпус В",82,119],
+    ["Цех 5","2025-01","Деталь А",114,107],
+    ["Цех 5","2025-01","Узел Б",99,133],
+    ["Цех 5","2025-01","Корпус В",97,99],
+    ["Цех 5","2025-02","Деталь А",100,129],
+    ["Цех 5","2025-02","Узел Б",114,108],
+    ["Цех 5","2025-02","Корпус В",95,91],
+    ["Цех 5","2025-03","Деталь А",113,0],
+    ["Цех 5","2025-03","Узел Б",116,73],
+    ["Цех 5","2025-03","Корпус В",108,115],
+    ["Цех 5","2025-04","Деталь А",107,93],
+    ["Цех 5","2025-04","Узел Б",104,92],
+    ["Цех 5","2025-04","Корпус В",115,109],
+    ["Цех 5","2025-05","Деталь А",82,94],
+    ["Цех 5","2025-05","Узел Б",81,91],
+    ["Цех 5","2025-05","Корпус В",98,87],
+    ["Цех 5","2025-06","Деталь А",119,104],
+    ["Цех 5","2025-06","Узел Б",80,0],
+    ["Цех 5","2025-06","Корпус В",115,123],
+    ["Цех 5","2025-07","Деталь А",104,81],
+    ["Цех 5","2025-07","Узел Б",118,119],
+    ["Цех 5","2025-07","Корпус В",87,115],
+    ["Цех 5","2025-08","Деталь А",85,105],
+    ["Цех 5","2025-08","Узел Б",86,102],
+    ["Цех 5","2025-08","Корпус В",88,92],
+    ["Цех 5","2025-09","Деталь А",85,104],
+    ["Цех 5","2025-09","Узел Б",114,93],
+    ["Цех 5","2025-09","Корпус В",96,90],
+    ["Цех 5","2025-10","Деталь А",103,99],
+    ["Цех 5","2025-10","Узел Б",111,119],
+    ["Цех 5","2025-10","Корпус В",97,85],
+    ["Цех 5","2025-11","Деталь А",117,76],
+    ["Цех 5","2025-11","Узел Б",84,90],
+    ["Цех 5","2025-11","Корпус В",119,90],
+    ["Цех 5","2025-12","Деталь А",115,122],
+    ["Цех 5","2025-12","Узел Б",80,83],
+    ["Цех 5","2025-12","Корпус В",103,79],
+]
+
+def _enrich(rows: list[list]) -> list[list]:
+    """Добавляет столбцы: отклонение и % выполнения."""
+    out = []
+    for r in rows:
+        ws, dt, pr, plan, fact = r[0], r[1], r[2], int(r[3]), int(r[4])
+        dev = fact - plan
+        pct = round((fact / plan * 100), 1) if plan else 0.0
+        out.append([ws, dt, pr, plan, fact, dev, pct])
+    return out
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  ВСПОМОГАТЕЛЬНЫЕ ВИДЖЕТЫ
+# ══════════════════════════════════════════════════════════════════════════════
 
 class ScrollableFrame(tk.Frame):
-    """Фрейм с вертикальной прокруткой через mousewheel."""
+    """Фрейм с вертикальной прокруткой."""
 
-    def __init__(self, parent, bg, **kw):
+    def __init__(self, parent, bg: str, **kw):
         outer = tk.Frame(parent, bg=bg)
         outer.pack(fill="both", expand=True)
-        self._canvas = tk.Canvas(outer, bg=bg, highlightthickness=0, bd=0)
-        self._vsb = ttk.Scrollbar(outer, orient="vertical", command=self._canvas.yview)
-        self._canvas.configure(yscrollcommand=self._vsb.set)
-        self._vsb.pack(side="right", fill="y")
-        self._canvas.pack(side="left", fill="both", expand=True)
-        super().__init__(self._canvas, bg=bg, **kw)
-        self._win = self._canvas.create_window((0, 0), window=self, anchor="nw")
-        self.bind("<Configure>", self._on_frame_configure)
-        self._canvas.bind("<Configure>", self._on_canvas_configure)
-        self._canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+        self._c = tk.Canvas(outer, bg=bg, highlightthickness=0, bd=0)
+        vsb = ttk.Scrollbar(outer, orient="vertical", command=self._c.yview)
+        self._c.configure(yscrollcommand=vsb.set)
+        vsb.pack(side="right", fill="y")
+        self._c.pack(side="left", fill="both", expand=True)
+        super().__init__(self._c, bg=bg, **kw)
+        self._win = self._c.create_window((0, 0), window=self, anchor="nw")
+        self.bind("<Configure>", lambda _: self._c.configure(scrollregion=self._c.bbox("all")))
+        self._c.bind("<Configure>", lambda e: self._c.itemconfig(self._win, width=e.width))
+        self._c.bind_all("<MouseWheel>", lambda e: self._c.yview_scroll(int(-e.delta/120), "units"))
 
-    def _on_frame_configure(self, _):
-        self._canvas.configure(scrollregion=self._canvas.bbox("all"))
-
-    def _on_canvas_configure(self, e):
-        self._canvas.itemconfig(self._win, width=e.width)
-
-    def _on_mousewheel(self, e):
-        self._canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
-
-    def recolor(self, bg):
-        self._canvas.configure(bg=bg)
+    def recolor(self, bg: str):
+        self._c.configure(bg=bg)
         self.configure(bg=bg)
-        self._canvas.master.configure(bg=bg)
+        self._c.master.configure(bg=bg)
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  ГЛАВНОЕ ПРИЛОЖЕНИЕ
+# ══════════════════════════════════════════════════════════════════════════════
 
 class ReportApp(tk.Tk):
-    """Основное окно отчётности WorkshopReport."""
 
-    _last_status = ("Готов к загрузке", "#2f9e44", "#d3f9d8")
+    _last_status = ("Встроенный датасет загружен", "#2f9e44", "#d3f9d8")
 
-    # ── Init ─────────────────────────────────────────────────────────────────
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
-        self.title("WorkshopReport · Производственный отчёт")
-        self.geometry("1160x780")
-        self.minsize(820, 600)
+        self.title("WorkshopReport — Производственный отчёт")
+        self.geometry("1200x800")
+        self.minsize(860, 620)
 
-        self.plans_df       = None
-        self.facts_df       = None
-        self.metrics_df     = None
-        self.current_figure = None
-        self.canvas         = None
+        # ── данные ────────────────────────────────────────────────────────────
+        self._all_data: list[list] = _enrich(BUILTIN)   # весь пул
+        self._view_data: list[list] = []                 # после фильтрации
+        self._loaded_files: list[dict] = []              # [{name, rows, ok}]
+        self._ws_vars: dict[str, tk.BooleanVar] = {}
+        self._ws_check_widgets: dict = {}
 
+        # ── сортировка таблицы ────────────────────────────────────────────────
+        self._sort_col = 1
+        self._sort_dir = 1
+
+        # ── вкладки ───────────────────────────────────────────────────────────
+        self._active_tab = "table"      # "table" | "charts"
+        self._chart_type = "bar"        # "bar" | "line" | "pct"
+        self._chart_canvas: Optional[FigureCanvasTkAgg] = None
+        self._current_figure: Optional[plt.Figure] = None
+
+        # ── тема ──────────────────────────────────────────────────────────────
         self._theme_name = "light"
-        self._T          = THEMES["light"]
+        self._T = THEMES["light"]
 
-        self.default_plans_path = DATA_DIR / "plans.xlsx"
-        self.default_facts_path = DATA_DIR / "workshop_production_data.csv"
-        self.default_export_dir = Path("exports")
-
-        self.plan_path_var  = tk.StringVar(value=str(self.default_plans_path))
-        self.fact_path_var  = tk.StringVar(value=str(self.default_facts_path))
-        self.export_dir_var = tk.StringVar(value=str(self.default_export_dir))
-
-        self.workshop_vars: dict[str, tk.BooleanVar] = {}
-        self.workshop_check_widgets: dict = {}
-
-        self._apply_ttk_theme()
+        self._apply_ttk_style()
         self._build_ui()
         self._repaint()
-        self._load_data()
+        self._rebuild_controls()
+        self._generate_report()     # показать встроенный датасет сразу
 
-    # ── TTK стили ────────────────────────────────────────────────────────────
-    def _apply_ttk_theme(self) -> None:
+    # ══════════════════════════════════════════════════════════════════════════
+    #  TTK стили
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _apply_ttk_style(self):
         T = self._T
         s = ttk.Style(self)
-        try:
-            s.theme_use("clam")
-        except tk.TclError:
-            pass
-        s.configure("TLabel",         background=T["bg"],          foreground=T["text"],         font=FONT_UI)
-        s.configure("TCombobox",      fieldbackground=T["entry_bg"], foreground=T["entry_fg"],   font=FONT_UI)
-        s.configure("Accent.TButton", background=T["accent"],       foreground="#ffffff",         font=FONT_BOLD)
+        try: s.theme_use("clam")
+        except tk.TclError: pass
+        s.configure("TLabel",         background=T["bg"],       foreground=T["text"], font=FONT_UI)
+        s.configure("Treeview",       background=T["surface"],  foreground=T["text"],
+                    fieldbackground=T["surface"], rowheight=26, font=FONT_SM)
+        s.configure("Treeview.Heading", background=T["surface2"], foreground=T["muted"], font=FONT_SM_B)
+        s.map("Treeview",             background=[("selected", T["accent"])],
+                                      foreground=[("selected", "#ffffff")])
+        s.configure("Accent.TButton", background=T["accent"],   foreground="#ffffff", font=FONT_BOLD)
         s.map("Accent.TButton",       background=[("active", T["accent_soft"]), ("!disabled", T["accent"])])
-        s.configure("Ghost.TButton",  background=T["btn_ghost_bg"], foreground=T["btn_ghost_fg"], font=FONT_SM_B)
-        s.map("Ghost.TButton",        background=[("active", T["accent_soft"]), ("!disabled", T["btn_ghost_bg"])])
-        s.configure("TPanedwindow",   background=T["sash"])
-        s.configure("Sash",           sashthickness=5,              sashpad=2,                    background=T["sash"])
+        s.configure("Ghost.TButton",  background=T["ghost_bg"], foreground=T["ghost_fg"], font=FONT_SM_B)
+        s.map("Ghost.TButton",        background=[("active", T["accent_soft"]), ("!disabled", T["ghost_bg"])])
 
-    # ── Build UI ─────────────────────────────────────────────────────────────
-    def _build_ui(self) -> None:
+    # ══════════════════════════════════════════════════════════════════════════
+    #  ПОСТРОЕНИЕ UI
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _build_ui(self):
         T = self._T
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        # PanedWindow — перетаскиваемый разделитель между сайдбаром и главным контентом
-        self.paned = tk.PanedWindow(self, orient="horizontal", sashwidth=6,
-                                    sashrelief="flat", bd=0, bg=T["sash"])
+        # PanedWindow — двигаемый разделитель сайдбар/контент
+        self.paned = tk.PanedWindow(self, orient="horizontal",
+                                    sashwidth=5, sashrelief="flat",
+                                    bg=T["sash"], bd=0)
         self.paned.grid(row=0, column=0, sticky="nsew")
 
-        # ── Sidebar ──────────────────────────────────────────────────────────
-        self._sb_outer = tk.Frame(self.paned, width=280)
-        self.paned.add(self._sb_outer, minsize=200, sticky="nsew")
+        # ── SIDEBAR ───────────────────────────────────────────────────────────
+        self._sb_outer = tk.Frame(self.paned, width=290)
+        self.paned.add(self._sb_outer, minsize=210, sticky="nsew")
         self._sb_outer.rowconfigure(0, weight=1)
         self._sb_outer.columnconfigure(0, weight=1)
 
-        self._sb_scroll = ScrollableFrame(self._sb_outer, bg=T["sidebar_bg"], padx=14, pady=14)
-        self._sb_scroll.columnconfigure(0, weight=1)
-        sidebar = self._sb_scroll   # alias
+        sb = ScrollableFrame(self._sb_outer, bg=T["sidebar_bg"], padx=14, pady=14)
+        sb.columnconfigure(0, weight=1)
+        self._sb = sb
 
-        # Logo
-        self.lbl_logo = tk.Label(sidebar, text="WorkshopReport", font=FONT_LOGO)
+        # Лого
+        self.lbl_logo = tk.Label(sb, text="WorkshopReport", font=FONT_LOGO)
         self.lbl_logo.grid(row=0, column=0, sticky="w")
-        self.lbl_sub = tk.Label(sidebar, text="Производственный отчёт", font=FONT_XS)
-        self.lbl_sub.grid(row=1, column=0, sticky="w", pady=(2, 10))
+        self.lbl_sub  = tk.Label(sb, text="Производственный отчёт", font=FONT_XS)
+        self.lbl_sub.grid(row=1, column=0, sticky="w", pady=(1, 10))
 
-        # Theme toggle
-        self.theme_btn = tk.Button(sidebar, command=self._toggle_theme,
-                                   bd=0, highlightthickness=0, padx=10, pady=6,
-                                   font=FONT_SM_B, relief="flat", cursor="hand2")
+        # Кнопка темы
+        self.theme_btn = tk.Button(sb, command=self._toggle_theme,
+                                   bd=0, highlightthickness=0,
+                                   padx=10, pady=7, relief="flat", cursor="hand2",
+                                   font=FONT_SM_B)
         self.theme_btn.grid(row=2, column=0, sticky="ew", pady=(0, 10))
 
-        # Import button
-        self.import_btn = tk.Button(sidebar, text="⬆  Импортировать документы",
-                                    command=self.import_documents,
-                                    bd=0, highlightthickness=0, padx=12, pady=9,
-                                    font=FONT_BOLD, relief="flat", cursor="hand2")
-        self.import_btn.grid(row=3, column=0, sticky="ew")
+        # Импорт файлов
+        self._sep_sb(sb, 3)
+        self.lbl_import = tk.Label(sb, text="ЗАГРУЗКА ДАННЫХ", font=FONT_XS)
+        self.lbl_import.grid(row=4, column=0, sticky="w", pady=(6, 6))
 
-        # File cards label
-        self.lbl_files = tk.Label(sidebar, text="Текущие файлы", font=FONT_BOLD)
-        self.lbl_files.grid(row=4, column=0, sticky="w", pady=(16, 6))
+        self.import_btn = tk.Button(sb, text="📂  Загрузить CSV / JSON / XLSX",
+                                    command=self._import_files,
+                                    bd=0, highlightthickness=0,
+                                    padx=10, pady=9, relief="flat", cursor="hand2",
+                                    font=FONT_SM_B)
+        self.import_btn.grid(row=5, column=0, sticky="ew")
 
-        # Plan card
-        self.plan_box = tk.Frame(sidebar, bd=0, padx=10, pady=10)
-        self.plan_box.grid(row=5, column=0, sticky="ew", pady=(0, 8))
-        self.plan_box.columnconfigure(0, weight=1)
-        header_row = tk.Frame(self.plan_box)
-        header_row.grid(row=0, column=0, sticky="ew")
-        header_row.columnconfigure(0, weight=1)
-        self.plan_name_label = tk.Label(header_row, text="📊  План (XLSX)", font=FONT_SM_B)
-        self.plan_name_label.grid(row=0, column=0, sticky="w")
-        self._plan_clear_btn = tk.Button(header_row, text="✕",
-                                         command=lambda: self.clear_file("plan"),
-                                         bd=0, highlightthickness=0, relief="flat",
-                                         cursor="hand2", font=FONT_SM, padx=4)
-        self._plan_clear_btn.grid(row=0, column=1, sticky="e")
-        self.plan_basename = tk.Label(self.plan_box, textvariable=self.plan_path_var,
-                                      justify="left", wraplength=230, font=FONT_XS)
-        self.plan_basename.grid(row=1, column=0, sticky="w", pady=(4, 0))
-        self.plan_status = tk.Label(self.plan_box, text="✗", font=FONT_SM_B)
-        self.plan_status.grid(row=2, column=0, sticky="e", pady=(4, 0))
+        self.files_frame = tk.Frame(sb)
+        self.files_frame.grid(row=6, column=0, sticky="ew", pady=(8, 0))
+        self.files_frame.columnconfigure(0, weight=1)
 
-        # Fact card
-        self.fact_box = tk.Frame(sidebar, bd=0, padx=10, pady=10)
-        self.fact_box.grid(row=6, column=0, sticky="ew")
-        self.fact_box.columnconfigure(0, weight=1)
-        header_row2 = tk.Frame(self.fact_box)
-        header_row2.grid(row=0, column=0, sticky="ew")
-        header_row2.columnconfigure(0, weight=1)
-        self.fact_name_label = tk.Label(header_row2, text="📋  Факт (CSV)", font=FONT_SM_B)
-        self.fact_name_label.grid(row=0, column=0, sticky="w")
-        self._fact_clear_btn = tk.Button(header_row2, text="✕",
-                                         command=lambda: self.clear_file("fact"),
-                                         bd=0, highlightthickness=0, relief="flat",
-                                         cursor="hand2", font=FONT_SM, padx=4)
-        self._fact_clear_btn.grid(row=0, column=1, sticky="e")
-        self.fact_basename = tk.Label(self.fact_box, textvariable=self.fact_path_var,
-                                      justify="left", wraplength=230, font=FONT_XS)
-        self.fact_basename.grid(row=1, column=0, sticky="w", pady=(4, 0))
-        self.fact_status = tk.Label(self.fact_box, text="✗", font=FONT_SM_B)
-        self.fact_status.grid(row=2, column=0, sticky="e", pady=(4, 0))
+        # Фильтр цехов
+        self._sep_sb(sb, 7)
+        self.lbl_ws = tk.Label(sb, text="ЦЕХА", font=FONT_XS)
+        self.lbl_ws.grid(row=8, column=0, sticky="w", pady=(6, 4))
 
-        # Export dir
-        self.lbl_export_dir = tk.Label(sidebar, text="Папка экспорта", font=FONT_BOLD)
-        self.lbl_export_dir.grid(row=7, column=0, sticky="w", pady=(16, 4))
-        self.lbl_export_path = tk.Label(sidebar, textvariable=self.export_dir_var,
-                                        justify="left", wraplength=240, font=FONT_XS)
-        self.lbl_export_path.grid(row=8, column=0, sticky="w")
-        self.choose_dir_btn = tk.Button(sidebar, text="📁  Выбрать папку",
-                                        command=self.choose_export_dir,
-                                        bd=0, highlightthickness=0, pady=6, relief="flat",
-                                        cursor="hand2", font=FONT_SM)
-        self.choose_dir_btn.grid(row=9, column=0, sticky="ew", pady=(4, 0))
+        self.ws_search_var = tk.StringVar()
+        self.ws_search = tk.Entry(sb, textvariable=self.ws_search_var,
+                                  font=FONT_SM, bd=0, highlightthickness=1,
+                                  relief="flat")
+        self.ws_search.grid(row=9, column=0, sticky="ew", ipady=5, padx=1)
+        self.ws_search_var.trace_add("write", lambda *_: self._filter_ws_list())
 
-        self.lbl_hint = tk.Label(sidebar, text="Один клик — импорт обоих файлов.",
-                                 justify="left", wraplength=240, font=FONT_XS)
-        self.lbl_hint.grid(row=10, column=0, sticky="w", pady=(12, 0))
+        self.ws_frame = tk.Frame(sb)
+        self.ws_frame.grid(row=10, column=0, sticky="ew", pady=(6, 0))
+        self.ws_frame.columnconfigure(0, weight=1)
+        self.ws_frame.columnconfigure(1, weight=1)
 
-        # ── Main area ────────────────────────────────────────────────────────
+        # Chips выбранных цехов
+        self.chips_frame = tk.Frame(sb)
+        self.chips_frame.grid(row=11, column=0, sticky="ew", pady=(6, 0))
+
+        # Период
+        self._sep_sb(sb, 12)
+        self.lbl_period = tk.Label(sb, text="ПЕРИОД", font=FONT_XS)
+        self.lbl_period.grid(row=13, column=0, sticky="w", pady=(6, 4))
+
+        period_row = tk.Frame(sb)
+        period_row.grid(row=14, column=0, sticky="ew")
+        period_row.columnconfigure(1, weight=1)
+        period_row.columnconfigure(3, weight=1)
+        self.lbl_from = tk.Label(period_row, text="С", font=FONT_SM_B)
+        self.lbl_from.grid(row=0, column=0, padx=(0, 4))
+        self.start_var = tk.StringVar()
+        self.start_combo = ttk.Combobox(period_row, textvariable=self.start_var,
+                                        state="readonly", width=10, font=FONT_SM)
+        self.start_combo.grid(row=0, column=1, sticky="ew", padx=(0, 6))
+        self.lbl_to = tk.Label(period_row, text="по", font=FONT_SM_B)
+        self.lbl_to.grid(row=0, column=2, padx=(0, 4))
+        self.end_var = tk.StringVar()
+        self.end_combo = ttk.Combobox(period_row, textvariable=self.end_var,
+                                      state="readonly", width=10, font=FONT_SM)
+        self.end_combo.grid(row=0, column=3, sticky="ew")
+
+        # Продукция
+        self.lbl_product = tk.Label(sb, text="ПРОДУКЦИЯ", font=FONT_XS)
+        self.lbl_product.grid(row=15, column=0, sticky="w", pady=(10, 4))
+        self.product_var = tk.StringVar()
+        self.product_combo = ttk.Combobox(sb, textvariable=self.product_var,
+                                          state="readonly", font=FONT_SM)
+        self.product_combo.grid(row=16, column=0, sticky="ew")
+
+        # Кнопка генерации
+        self.gen_btn = tk.Button(sb, text="▶  Сформировать отчёт",
+                                 command=self._generate_report,
+                                 bd=0, highlightthickness=0,
+                                 padx=12, pady=10, relief="flat", cursor="hand2",
+                                 font=FONT_BOLD)
+        self.gen_btn.grid(row=17, column=0, sticky="ew", pady=(14, 0))
+
+        # Экспорт
+        self._sep_sb(sb, 18)
+        self.lbl_export_hdr = tk.Label(sb, text="ЭКСПОРТ", font=FONT_XS)
+        self.lbl_export_hdr.grid(row=19, column=0, sticky="w", pady=(6, 6))
+
+        self.exp_csv_btn  = tk.Button(sb, text="📄  Скачать CSV",
+                                      command=self._export_csv,
+                                      bd=0, highlightthickness=0,
+                                      padx=10, pady=7, relief="flat", cursor="hand2",
+                                      font=FONT_SM_B, state="disabled")
+        self.exp_csv_btn.grid(row=20, column=0, sticky="ew", pady=(0, 4))
+        self.exp_json_btn = tk.Button(sb, text="🗂  Скачать JSON",
+                                      command=self._export_json,
+                                      bd=0, highlightthickness=0,
+                                      padx=10, pady=7, relief="flat", cursor="hand2",
+                                      font=FONT_SM_B, state="disabled")
+        self.exp_json_btn.grid(row=21, column=0, sticky="ew", pady=(0, 4))
+        self.exp_html_btn = tk.Button(sb, text="🌐  Сохранить HTML",
+                                      command=self._export_html,
+                                      bd=0, highlightthickness=0,
+                                      padx=10, pady=7, relief="flat", cursor="hand2",
+                                      font=FONT_SM_B, state="disabled")
+        self.exp_html_btn.grid(row=22, column=0, sticky="ew")
+
+        # ── MAIN AREA ─────────────────────────────────────────────────────────
         self._main_outer = tk.Frame(self.paned)
-        self.paned.add(self._main_outer, minsize=500, sticky="nsew")
+        self.paned.add(self._main_outer, minsize=540, sticky="nsew")
         self._main_outer.rowconfigure(0, weight=1)
         self._main_outer.columnconfigure(0, weight=1)
 
-        # Scrollable main canvas
-        self._main_canvas = tk.Canvas(self._main_outer, highlightthickness=0, bd=0)
-        self._main_vsb = ttk.Scrollbar(self._main_outer, orient="vertical",
-                                        command=self._main_canvas.yview)
-        self._main_canvas.configure(yscrollcommand=self._main_vsb.set)
-        self._main_vsb.grid(row=0, column=1, sticky="ns")
-        self._main_canvas.grid(row=0, column=0, sticky="nsew")
+        # Прокручиваемый холст для основного контента
+        self._mc = tk.Canvas(self._main_outer, highlightthickness=0, bd=0)
+        self._mvsb = ttk.Scrollbar(self._main_outer, orient="vertical", command=self._mc.yview)
+        self._mc.configure(yscrollcommand=self._mvsb.set)
+        self._mvsb.grid(row=0, column=1, sticky="ns")
+        self._mc.grid(row=0, column=0, sticky="nsew")
         self._main_outer.rowconfigure(0, weight=1)
         self._main_outer.columnconfigure(0, weight=1)
 
-        main = tk.Frame(self._main_canvas, padx=18, pady=16)
+        main = tk.Frame(self._mc, padx=20, pady=16)
         main.columnconfigure(0, weight=1)
-        self._main_frame = main
-        self._main_win = self._main_canvas.create_window((0, 0), window=main, anchor="nw")
+        self._main = main
+        self._mwin = self._mc.create_window((0, 0), window=main, anchor="nw")
+        main.bind("<Configure>", lambda _: self._mc.configure(scrollregion=self._mc.bbox("all")))
+        self._mc.bind("<Configure>", lambda e: self._mc.itemconfig(self._mwin, width=e.width))
+        self._mc.bind_all("<MouseWheel>", lambda e: self._mc.yview_scroll(int(-e.delta/120), "units"))
 
-        main.bind("<Configure>", self._on_main_configure)
-        self._main_canvas.bind("<Configure>", self._on_main_canvas_configure)
-        self._main_canvas.bind_all("<MouseWheel>", self._on_main_mousewheel)
-
-        # Header
-        self.header_frame = tk.Frame(main, padx=14, pady=12)
+        # Заголовок страницы
+        self.header_frame = tk.Frame(main, padx=16, pady=14)
         self.header_frame.grid(row=0, column=0, sticky="ew")
         self.header_frame.columnconfigure(0, weight=1)
-        self.lbl_title = tk.Label(self.header_frame, text="Отчёт по цехам", font=("Segoe UI", 18, "bold"))
+        self.lbl_title    = tk.Label(self.header_frame, text="Отчёт по цехам", font=("Segoe UI", 20, "bold"))
         self.lbl_title.grid(row=0, column=0, sticky="w")
-        self.lbl_subtitle = tk.Label(self.header_frame, text="Выберите срез данных и сформируйте отчёт", font=FONT_SM)
+        self.lbl_subtitle = tk.Label(self.header_frame, text="Загрузите данные или используйте встроенный датасет", font=FONT_SM)
         self.lbl_subtitle.grid(row=1, column=0, sticky="w", pady=(2, 0))
-        self.status_canvas = tk.Canvas(self.header_frame, width=220, height=36, highlightthickness=0)
-        self.status_canvas.grid(row=0, column=1, rowspan=2, sticky="e", padx=(10, 0))
+        self.status_canvas = tk.Canvas(self.header_frame, width=230, height=36, highlightthickness=0)
+        self.status_canvas.grid(row=0, column=1, rowspan=2, sticky="e", padx=(12, 0))
 
-        # Sep
-        self._sep1 = tk.Frame(main, height=1)
-        self._sep1.grid(row=1, column=0, sticky="ew", pady=(2, 10))
+        self._hsep(main, 1)
 
-        # ── Filter card ──────────────────────────────────────────────────────
-        self.filter_card = tk.Frame(main, padx=14, pady=12)
-        self.filter_card.grid(row=2, column=0, sticky="ew")
-        self.filter_card.columnconfigure(0, weight=1)
-
-        self.lbl_workshops = tk.Label(self.filter_card, text="Цеха", font=FONT_BOLD)
-        self.lbl_workshops.grid(row=0, column=0, sticky="w")
-
-        self.workshop_selector = tk.Frame(self.filter_card)
-        self.workshop_selector.grid(row=1, column=0, sticky="ew", pady=(6, 0))
-        self.workshop_selector.columnconfigure(0, weight=1)
-
-        self.search_var = tk.StringVar()
-        self.search_entry = tk.Entry(self.workshop_selector, textvariable=self.search_var,
-                                     font=FONT_UI, bd=0, highlightthickness=1, relief="flat")
-        self.search_entry.grid(row=0, column=0, sticky="ew", ipady=5, padx=1)
-        self.search_var.trace_add("write", lambda *_: self._filter_workshops())
-
-        # Chips row — wrap-friendly via pack inside a frame
-        self.chips_frame = tk.Frame(self.workshop_selector)
-        self.chips_frame.grid(row=1, column=0, sticky="ew", pady=(8, 4))
-
-        # Checkboxes in a 2-column grid for space efficiency
-        self.workshop_checks_frame = tk.Frame(self.workshop_selector)
-        self.workshop_checks_frame.grid(row=2, column=0, sticky="ew")
-        self.workshop_checks_frame.columnconfigure(0, weight=1)
-        self.workshop_checks_frame.columnconfigure(1, weight=1)
-
-        # ── Period + generate row (wraps on resize) ──────────────────────────
-        self._sep_f = tk.Frame(main, height=1)
-        self._sep_f.grid(row=3, column=0, sticky="ew", pady=(10, 10))
-
-        self.controls_frame = tk.Frame(main)
-        self.controls_frame.grid(row=4, column=0, sticky="ew")
-        self.controls_frame.columnconfigure(1, weight=0)
-        self.controls_frame.columnconfigure(3, weight=0)
-        self.controls_frame.columnconfigure(5, weight=0)
-        self.controls_frame.columnconfigure(6, weight=1)
-
-        self.lbl_from = tk.Label(self.controls_frame, text="С", font=FONT_BOLD)
-        self.lbl_from.grid(row=0, column=0, sticky="w", padx=(0, 6))
-        self.start_var = tk.StringVar(value="2025-01")
-        self.start_combo = ttk.Combobox(self.controls_frame, textvariable=self.start_var,
-                                        state="readonly", width=10, font=FONT_UI)
-        self.start_combo.grid(row=0, column=1, sticky="w", padx=(0, 8))
-
-        self.lbl_to = tk.Label(self.controls_frame, text="по", font=FONT_BOLD)
-        self.lbl_to.grid(row=0, column=2, sticky="w", padx=(0, 6))
-        self.end_var = tk.StringVar(value="2025-12")
-        self.end_combo = ttk.Combobox(self.controls_frame, textvariable=self.end_var,
-                                      state="readonly", width=10, font=FONT_UI)
-        self.end_combo.grid(row=0, column=3, sticky="w", padx=(0, 8))
-
-        self.lbl_product = tk.Label(self.controls_frame, text="Продукция", font=FONT_BOLD)
-        self.lbl_product.grid(row=0, column=4, sticky="w", padx=(0, 6))
-        self.product_var = tk.StringVar(value="Все")
-        self.product_combo = ttk.Combobox(self.controls_frame, textvariable=self.product_var,
-                                          state="readonly", width=16, font=FONT_UI)
-        self.product_combo.grid(row=0, column=5, sticky="w", padx=(0, 10))
-
-        self.generate_btn = ttk.Button(self.controls_frame, text="▶  Сформировать отчёт",
-                                       command=self.generate_report,
-                                       style="Accent.TButton", width=22)
-        self.generate_btn.grid(row=0, column=6, sticky="e")
-
-        # ── Sep ──────────────────────────────────────────────────────────────
-        self._sep2 = tk.Frame(main, height=1)
-        self._sep2.grid(row=5, column=0, sticky="ew", pady=(12, 10))
-
-        # ── KPI cards — adaptive grid ─────────────────────────────────────────
+        # KPI карточки
         self.kpi_frame = tk.Frame(main)
-        self.kpi_frame.grid(row=6, column=0, sticky="ew")
-        for i in range(4):
-            self.kpi_frame.columnconfigure(i, weight=1)
+        self.kpi_frame.grid(row=2, column=0, sticky="ew", pady=(0, 4))
+        for i in range(6): self.kpi_frame.columnconfigure(i, weight=1)
 
         self.kpi_cards: dict = {}
         kpi_defs = [
-            ("plan",       "📦  План",      "Суммарный план"),
-            ("fact",       "✅  Факт",       "Суммарный факт"),
-            ("completion", "📈  Выполнение", "% выполнения"),
-            ("deviation",  "↔  Отклонение", "Факт − план"),
+            ("plan",       "📦 План",         "Суммарный план"),
+            ("fact",       "✅ Факт",           "Суммарный факт"),
+            ("pct",        "📈 Выполнение",    "Средний %"),
+            ("dev",        "↔ Отклонение",    "Факт − план"),
+            ("over",       "▲ Перевыполнено", "позиций"),
+            ("under",      "▼ Недовыполнено", "позиций"),
         ]
         for idx, (key, title, hint) in enumerate(kpi_defs):
-            pad_r = (0, 8) if idx < 3 else (0, 0)
-            card = tk.Frame(self.kpi_frame, bd=0, padx=12, pady=10)
-            card.grid(row=0, column=idx, sticky="nsew", padx=pad_r)
-            lbl_t = tk.Label(card, text=title, font=FONT_SM_B)
+            card = tk.Frame(self.kpi_frame, bd=0, padx=10, pady=10)
+            card.grid(row=0, column=idx, sticky="nsew", padx=(0, 6) if idx < 5 else 0)
+            lbl_t = tk.Label(card, text=title, font=FONT_XS)
             lbl_t.pack(anchor="w")
-            value = tk.Label(card, text="—", font=FONT_NUM)
-            value.pack(anchor="w", pady=(4, 0))
-            hint_lbl = tk.Label(card, text=hint, font=FONT_XS)
-            hint_lbl.pack(anchor="w", pady=(2, 0))
-            value.bind("<Button-1>", lambda e, k=key: self._open_kpi_details(k))
-            value.config(cursor="hand2")
-            self.kpi_cards[key] = {"card": card, "value": value, "hint": hint_lbl, "title_lbl": lbl_t}
+            val   = tk.Label(card, text="—", font=FONT_NUM)
+            val.pack(anchor="w", pady=(3, 0))
+            lbl_h = tk.Label(card, text=hint, font=FONT_XS)
+            lbl_h.pack(anchor="w", pady=(1, 0))
+            self.kpi_cards[key] = {"card": card, "val": val, "title": lbl_t, "hint": lbl_h}
 
-        # ── Export panel ──────────────────────────────────────────────────────
-        self._sep3 = tk.Frame(main, height=1)
-        self._sep3.grid(row=7, column=0, sticky="ew", pady=(12, 10))
+        self._hsep(main, 3)
 
-        export_panel = tk.Frame(main)
-        export_panel.grid(row=8, column=0, sticky="ew")
-        self.lbl_export = tk.Label(export_panel, text="Экспорт отчёта", font=FONT_BOLD)
-        self.lbl_export.pack(anchor="w")
-        self.export_frame = tk.Frame(export_panel)
-        self.export_frame.pack(anchor="w", pady=(6, 0))
-        self.excel_btn = ttk.Button(self.export_frame, text="📄  Excel", command=self.export_excel,
-                                    style="Ghost.TButton", state="disabled", width=12)
-        self.excel_btn.pack(side="left", padx=(0, 8))
-        self.pdf_btn = ttk.Button(self.export_frame, text="📕  PDF", command=self.export_pdf,
-                                   style="Ghost.TButton", state="disabled", width=12)
-        self.pdf_btn.pack(side="left", padx=(0, 8))
-        self.html_btn = ttk.Button(self.export_frame, text="🌐  HTML", command=self.export_html,
-                                    style="Ghost.TButton", state="disabled", width=12)
-        self.html_btn.pack(side="left")
+        # Вкладки Таблица / Графики
+        tab_row = tk.Frame(main)
+        tab_row.grid(row=4, column=0, sticky="ew")
+        tab_row.columnconfigure(0, weight=1)
 
-        # ── Chart frame ───────────────────────────────────────────────────────
-        self.chart_frame = tk.Frame(main, bd=0, padx=12, pady=12)
-        self.chart_frame.grid(row=9, column=0, sticky="nsew", pady=(12, 0))
-        self.chart_frame.columnconfigure(0, weight=1)
-        self.chart_frame.rowconfigure(0, weight=1)
-        main.rowconfigure(9, weight=1)
+        self.tab_bar = tk.Frame(tab_row)
+        self.tab_bar.grid(row=0, column=0, sticky="w")
+        self.tab_btns: dict[str, tk.Button] = {}
+        for tab_id, tab_label in [("table", "📋  Таблица"), ("charts", "📊  Графики")]:
+            b = tk.Button(self.tab_bar, text=tab_label,
+                          command=lambda t=tab_id: self._switch_tab(t),
+                          bd=0, highlightthickness=0, padx=16, pady=8,
+                          relief="flat", cursor="hand2", font=FONT_SM_B)
+            b.pack(side="left", padx=(0, 2))
+            self.tab_btns[tab_id] = b
 
-        self.empty_state = tk.Frame(self.chart_frame)
-        self.empty_state.grid(row=0, column=0, sticky="nsew")
-        tk.Label(self.empty_state, text="📊", font=("Segoe UI", 40)).pack(pady=(28, 8))
-        tk.Label(self.empty_state, text="Сформируйте отчёт,\nчтобы увидеть графики и метрики",
+        self._tab_sep = tk.Frame(main, height=2)
+        self._tab_sep.grid(row=5, column=0, sticky="ew")
+
+        # ── Панель таблицы ────────────────────────────────────────────────────
+        self.table_panel = tk.Frame(main)
+        self.table_panel.grid(row=6, column=0, sticky="nsew")
+        self.table_panel.columnconfigure(0, weight=1)
+        main.rowconfigure(6, weight=1)
+
+        # Строка быстрых фильтров по цехам
+        self.filter_bar = tk.Frame(self.table_panel)
+        self.filter_bar.grid(row=0, column=0, sticky="ew", pady=(10, 8))
+        self.filter_bar.columnconfigure(1, weight=1)
+        self.lbl_filter = tk.Label(self.filter_bar, text="Цех:", font=FONT_SM_B)
+        self.lbl_filter.grid(row=0, column=0, sticky="w", padx=(0, 6))
+        self.filter_chips = tk.Frame(self.filter_bar)
+        self.filter_chips.grid(row=0, column=1, sticky="w")
+        self.search_var = tk.StringVar()
+        self.search_entry = tk.Entry(self.filter_bar, textvariable=self.search_var,
+                                     font=FONT_SM, bd=0, highlightthickness=1,
+                                     relief="flat", width=20)
+        self.search_entry.grid(row=0, column=2, sticky="e", ipady=4, padx=1)
+        self.search_var.trace_add("write", lambda *_: self._render_table())
+
+        # Treeview (таблица)
+        tree_frame = tk.Frame(self.table_panel)
+        tree_frame.grid(row=1, column=0, sticky="nsew")
+        tree_frame.columnconfigure(0, weight=1)
+        tree_frame.rowconfigure(0, weight=1)
+        self.table_panel.rowconfigure(1, weight=1)
+
+        cols = ("workshop", "date", "product", "plan", "fact", "deviation", "pct")
+        self.tree = ttk.Treeview(tree_frame, columns=cols, show="headings", selectmode="browse")
+        heads = {"workshop":"Цех","date":"Период","product":"Продукт",
+                 "plan":"План","fact":"Факт","deviation":"Отклонение","pct":"Выполнение %"}
+        widths = {"workshop":90,"date":80,"product":100,"plan":70,"fact":70,"deviation":90,"pct":130}
+        for c in cols:
+            self.tree.heading(c, text=heads[c],
+                              command=lambda col=c: self._sort_by(col))
+            self.tree.column(c, width=widths[c], anchor="w" if c in ("workshop","product") else "e",
+                             stretch=True)
+        tsb = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=tsb.set)
+        self.tree.grid(row=0, column=0, sticky="nsew")
+        tsb.grid(row=0, column=1, sticky="ns")
+
+        # Строка статуса таблицы
+        self.tree_footer = tk.Frame(self.table_panel)
+        self.tree_footer.grid(row=2, column=0, sticky="ew")
+        self.tree_footer.columnconfigure(1, weight=1)
+        self.lbl_row_count = tk.Label(self.tree_footer, text="Записей: 0", font=FONT_XS)
+        self.lbl_row_count.grid(row=0, column=0, sticky="w", padx=4, pady=4)
+
+        # ── Панель графиков ───────────────────────────────────────────────────
+        self.chart_panel = tk.Frame(main)
+        # (скрыта по умолчанию — показывается через _switch_tab)
+
+        chart_ctrl = tk.Frame(self.chart_panel)
+        chart_ctrl.pack(fill="x", pady=(10, 8))
+        self.lbl_chart_type = tk.Label(chart_ctrl, text="Тип:", font=FONT_SM_B)
+        self.lbl_chart_type.pack(side="left", padx=(0, 8))
+        self.chart_type_btns: dict[str, tk.Button] = {}
+        for ct_id, ct_label in [("bar","Столбцы"), ("line","Линия"), ("pct","% выполнения")]:
+            b = tk.Button(chart_ctrl, text=ct_label,
+                          command=lambda t=ct_id: self._set_chart_type(t),
+                          bd=0, highlightthickness=0, padx=12, pady=5,
+                          relief="flat", cursor="hand2", font=FONT_SM)
+            b.pack(side="left", padx=(0, 4))
+            self.chart_type_btns[ct_id] = b
+
+        self.chart_area = tk.Frame(self.chart_panel, height=340)
+        self.chart_area.pack(fill="both", expand=True)
+        self.chart_area.columnconfigure(0, weight=1)
+        self.chart_area.rowconfigure(0, weight=1)
+
+        self.chart_empty = tk.Frame(self.chart_area)
+        self.chart_empty.grid(row=0, column=0, sticky="nsew")
+        tk.Label(self.chart_empty, text="📊", font=("Segoe UI", 42)).pack(pady=(36, 8))
+        tk.Label(self.chart_empty, text="Сформируйте отчёт, чтобы увидеть графики",
                  font=FONT_UI, justify="center").pack()
 
-    # ── Responsive canvas callbacks ───────────────────────────────────────────
-    def _on_main_configure(self, _):
-        self._main_canvas.configure(scrollregion=self._main_canvas.bbox("all"))
+        # Активируем вкладку таблицы по умолчанию
+        self._switch_tab("table", init=True)
 
-    def _on_main_canvas_configure(self, e):
-        self._main_canvas.itemconfig(self._main_win, width=e.width)
+    def _sep_sb(self, parent, row):
+        """Тонкий разделитель в сайдбаре."""
+        f = tk.Frame(parent, height=1)
+        f.grid(row=row, column=0, sticky="ew", pady=(8, 0))
+        self._sb_seps = getattr(self, "_sb_seps", [])
+        self._sb_seps.append(f)
 
-    def _on_main_mousewheel(self, e):
-        self._main_canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
+    def _hsep(self, parent, row):
+        """Горизонтальный разделитель в основной панели."""
+        f = tk.Frame(parent, height=1)
+        f.grid(row=row, column=0, sticky="ew", pady=(4, 4))
+        self._hseps = getattr(self, "_hseps", [])
+        self._hseps.append(f)
 
-    # ── Repaint ───────────────────────────────────────────────────────────────
-    def _repaint(self) -> None:
+    # ══════════════════════════════════════════════════════════════════════════
+    #  ПОКРАСКА (repaint)
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _repaint(self):
         T = self._T
         self.configure(bg=T["bg"])
         self.paned.configure(bg=T["sash"])
         self._sb_outer.configure(bg=T["sidebar_bg"])
-        self._sb_scroll.recolor(T["sidebar_bg"])
+        self._sb.recolor(T["sidebar_bg"])
 
-        # Sidebar widgets
-        for w in (self.lbl_logo, self.lbl_sub, self.lbl_files, self.lbl_hint,
-                  self.lbl_export_dir, self.lbl_export_path):
-            w.configure(bg=T["sidebar_bg"])
+        # Sidebar labels
+        for w in (self.lbl_logo, self.lbl_sub, self.lbl_import, self.lbl_ws,
+                  self.lbl_period, self.lbl_product, self.lbl_export_hdr):
+            try:
+                w.configure(bg=T["sidebar_bg"])
+            except Exception: pass
         self.lbl_logo.configure(fg=T["text"])
-        self.lbl_sub.configure(fg=T["text_muted"])
-        self.lbl_files.configure(fg=T["text"])
-        self.lbl_hint.configure(fg=T["text_muted"])
-        self.lbl_export_dir.configure(fg=T["text"])
-        self.lbl_export_path.configure(fg=T["text_muted"])
+        self.lbl_sub.configure(fg=T["muted"])
+        for lbl in (self.lbl_import, self.lbl_ws, self.lbl_period,
+                    self.lbl_product, self.lbl_export_hdr):
+            lbl.configure(fg=T["muted"])
 
-        self.theme_btn.configure(
-            bg=T["btn_ghost_bg"], fg=T["accent"],
-            text=T["toggle_text"],
-            activebackground=T["accent_soft"],
-        )
-        self.import_btn.configure(
-            bg=T["btn_import_bg"], fg=T["btn_import_fg"],
-            activebackground=T["green"],
-        )
-        self.choose_dir_btn.configure(bg=T["surface2"] if T == THEMES["light"] else T["card_bg"],
-                                      fg=T["text_muted"],
-                                      activebackground=T["border"])
+        self.theme_btn.configure(bg=T["surface2"], fg=T["accent"],
+                                 text=T["toggle_text"],
+                                 activebackground=T["accent_soft"])
+        self.import_btn.configure(bg=T["import_bg"], fg=T["import_fg"],
+                                  activebackground=T["green"])
+        self.gen_btn.configure(bg=T["accent"], fg="#ffffff",
+                               activebackground=T["accent_soft"])
 
-        # File cards
-        for box, nl, bl, st, cb in (
-            (self.plan_box, self.plan_name_label, self.plan_basename, self.plan_status, self._plan_clear_btn),
-            (self.fact_box, self.fact_name_label, self.fact_basename, self.fact_status, self._fact_clear_btn),
-        ):
-            box.configure(bg=T["card_bg"])
-            for child in box.winfo_children():
-                try:
-                    child.configure(bg=T["card_bg"])
-                except Exception:
-                    pass
-            nl.configure(bg=T["card_bg"], fg=T["accent"])
-            bl.configure(bg=T["card_bg"], fg=T["text_muted"])
-            st.configure(bg=T["card_bg"], fg=T["red"])
-            cb.configure(bg=T["card_bg"], fg=T["text_muted"], activebackground=T["card_bg"])
-            # header row inside card
-            cb.master.configure(bg=T["card_bg"])
+        # Export buttons
+        for btn, ena in ((self.exp_csv_btn, self._view_data),
+                         (self.exp_json_btn, self._view_data),
+                         (self.exp_html_btn, self._view_data)):
+            btn.configure(bg=T["ghost_bg"], fg=T["ghost_fg"],
+                          activebackground=T["accent_soft"],
+                          disabledforeground=T["muted"])
 
-        # Main scroll area
-        self._main_canvas.configure(bg=T["bg"])
-        self._main_frame.configure(bg=T["bg"])
+        # Files frame
+        self.files_frame.configure(bg=T["sidebar_bg"])
+        self._repaint_file_pills()
 
+        # WS widgets
+        self.ws_search.configure(bg=T["entry_bg"], fg=T["entry_fg"],
+                                 insertbackground=T["entry_fg"],
+                                 highlightcolor=T["accent"], highlightbackground=T["border"])
+        self.ws_frame.configure(bg=T["sidebar_bg"])
+        self.chips_frame.configure(bg=T["sidebar_bg"])
+        for name, (cb, dot) in self._ws_check_widgets.items():
+            cb.configure(bg=T["sidebar_bg"], fg=T["text"],
+                         selectcolor=T["sidebar_bg"],
+                         activebackground=T["sidebar_bg"])
+            cb.master.configure(bg=T["sidebar_bg"])
+            dot.configure(bg=T["sidebar_bg"])
+
+        # Period
+        for lbl in (self.lbl_from, self.lbl_to):
+            lbl.configure(bg=T["sidebar_bg"], fg=T["text"])
+        self.lbl_from.master.configure(bg=T["sidebar_bg"])
+
+        # Separators
+        for f in getattr(self, "_sb_seps", []):
+            f.configure(bg=T["border"])
+        for f in getattr(self, "_hseps", []):
+            f.configure(bg=T["border"])
+        self._tab_sep.configure(bg=T["accent"])
+
+        # Main canvas
+        self._mc.configure(bg=T["bg"])
+        self._main.configure(bg=T["bg"])
+
+        # Header
         self.header_frame.configure(bg=T["surface"])
         self.status_canvas.configure(bg=T["surface"])
         self.lbl_title.configure(bg=T["surface"], fg=T["text"])
-        self.lbl_subtitle.configure(bg=T["surface"], fg=T["text_muted"])
+        self.lbl_subtitle.configure(bg=T["surface"], fg=T["muted"])
 
-        for sep in (self._sep1, self._sep_f, self._sep2, self._sep3):
-            sep.configure(bg=T["border"])
-
-        self.filter_card.configure(bg=T["surface"])
-        self.lbl_workshops.configure(bg=T["surface"], fg=T["text"])
-        self.workshop_selector.configure(bg=T["surface"])
-        self.chips_frame.configure(bg=T["surface"])
-        self.workshop_checks_frame.configure(bg=T["surface"])
-        self.search_entry.configure(
-            bg=T["entry_bg"], fg=T["entry_fg"],
-            insertbackground=T["entry_fg"],
-            highlightcolor=T["accent"], highlightbackground=T["border"],
-        )
-
-        cf = self.controls_frame
-        cf.configure(bg=T["bg"])
-        for lbl in (self.lbl_from, self.lbl_to, self.lbl_product):
-            lbl.configure(bg=T["bg"], fg=T["text"])
-
+        # KPI
         self.kpi_frame.configure(bg=T["bg"])
         for d in self.kpi_cards.values():
             d["card"].configure(bg=T["card_bg"])
-            d["title_lbl"].configure(bg=T["card_bg"], fg=T["text_muted"])
-            d["value"].configure(bg=T["card_bg"])
-            d["hint"].configure(bg=T["card_bg"], fg=T["text_muted"])
+            d["title"].configure(bg=T["card_bg"], fg=T["muted"])
+            d["val"].configure(bg=T["card_bg"])
+            d["hint"].configure(bg=T["card_bg"], fg=T["muted"])
 
-        ep = self.lbl_export.master
-        ep.configure(bg=T["bg"])
-        self.export_frame.configure(bg=T["bg"])
-        self.lbl_export.configure(bg=T["bg"], fg=T["text"])
+        # Tab buttons
+        tab_bar = self.tab_bar
+        tab_bar.configure(bg=T["bg"])
+        for tid, btn in self.tab_btns.items():
+            active = tid == self._active_tab
+            btn.configure(bg=T["bg"] if not active else T["accent_soft"],
+                          fg=T["accent"] if active else T["muted"],
+                          activebackground=T["accent_soft"])
 
-        for sep in (self._sep3,):
-            sep.configure(bg=T["border"])
+        # Table panel
+        self.table_panel.configure(bg=T["bg"])
+        self.filter_bar.configure(bg=T["bg"])
+        self.lbl_filter.configure(bg=T["bg"], fg=T["text"])
+        self.filter_chips.configure(bg=T["bg"])
+        self.search_entry.configure(bg=T["entry_bg"], fg=T["entry_fg"],
+                                    insertbackground=T["entry_fg"],
+                                    highlightcolor=T["accent"], highlightbackground=T["border"])
+        self.tree_footer.configure(bg=T["surface2"])
+        self.lbl_row_count.configure(bg=T["surface2"], fg=T["muted"])
+        self._repaint_filter_chips()
 
-        self.chart_frame.configure(bg=T["surface"])
-        self.empty_state.configure(bg=T["surface"])
-        for child in self.empty_state.winfo_children():
-            try:
-                child.configure(bg=T["surface"], fg=T["text_muted"])
-            except Exception:
-                pass
+        # Chart panel
+        self.chart_panel.configure(bg=T["bg"])
+        self.chart_area.configure(bg=T["surface"])
+        self.chart_empty.configure(bg=T["surface"])
+        for c in self.chart_empty.winfo_children():
+            try: c.configure(bg=T["surface"], fg=T["muted"])
+            except Exception: pass
+        ctrl = self.lbl_chart_type.master
+        ctrl.configure(bg=T["bg"])
+        self.lbl_chart_type.configure(bg=T["bg"], fg=T["text"])
+        self._repaint_chart_type_btns()
 
-        # Workshop checkboxes
-        for name, (cb, dot) in self.workshop_check_widgets.items():
-            cb.configure(bg=T["surface"], fg=T["text"],
-                         selectcolor=T["surface"],
-                         activebackground=T["surface"], activeforeground=T["text"])
-            cb.master.configure(bg=T["surface"])
-            dot.configure(bg=T["surface"])
-
-        self._refresh_chips()
+        # TTK
+        self._apply_ttk_style()
         self._render_status_chip(*self._last_status)
-        self._apply_ttk_theme()
+        self._refresh_ws_chips()
 
-    # ── Theme toggle ──────────────────────────────────────────────────────────
-    def _toggle_theme(self) -> None:
+    def _repaint_file_pills(self):
+        T = self._T
+        for child in self.files_frame.winfo_children():
+            child.destroy()
+        for f in self._loaded_files:
+            pill = tk.Frame(self.files_frame, bg=T["card_bg"], padx=8, pady=6)
+            pill.pack(fill="x", pady=(0, 4))
+            pill.columnconfigure(1, weight=1)
+            icon = "📄" if f["ok"] else "⚠️"
+            tk.Label(pill, text=icon, bg=T["card_bg"], font=("Segoe UI", 14)).grid(row=0, column=0, rowspan=2, padx=(0, 8))
+            tk.Label(pill, text=f["name"], bg=T["card_bg"], fg=T["text"],
+                     font=FONT_SM_B, anchor="w").grid(row=0, column=1, sticky="w")
+            meta = f"{f['rows']} строк" if f["ok"] else f.get("err", "Ошибка")
+            tk.Label(pill, text=meta, bg=T["card_bg"], fg=T["muted"],
+                     font=FONT_XS, anchor="w").grid(row=1, column=1, sticky="w")
+            status = "✓" if f["ok"] else "✗"
+            tk.Label(pill, text=status, bg=T["card_bg"],
+                     fg=T["green"] if f["ok"] else T["red"],
+                     font=FONT_SM_B).grid(row=0, column=2, rowspan=2, padx=(6, 2))
+
+    def _repaint_chart_type_btns(self):
+        T = self._T
+        for ct_id, btn in self.chart_type_btns.items():
+            active = ct_id == self._chart_type
+            btn.configure(bg=T["accent_soft"] if active else T["surface2"],
+                          fg=T["accent"] if active else T["muted"],
+                          activebackground=T["accent_soft"])
+
+    def _repaint_filter_chips(self):
+        T = self._T
+        ws_set = sorted({r[0] for r in self._all_data})
+        for child in self.filter_chips.winfo_children():
+            child.destroy()
+        all_btn = tk.Button(self.filter_chips, text="Все",
+                            command=lambda: self._set_table_filter("all"),
+                            bd=0, highlightthickness=0, padx=10, pady=3,
+                            relief="flat", cursor="hand2", font=FONT_XS)
+        all_btn.pack(side="left", padx=(0, 4))
+        self._filter_ws_active = getattr(self, "_filter_ws_active", "all")
+        active_col = T["accent_soft"] if self._filter_ws_active == "all" else T["surface2"]
+        active_fg  = T["accent"]      if self._filter_ws_active == "all" else T["muted"]
+        all_btn.configure(bg=active_col, fg=active_fg, activebackground=T["accent_soft"])
+        for ws in ws_set:
+            active = self._filter_ws_active == ws
+            b = tk.Button(self.filter_chips, text=ws,
+                          command=lambda w=ws: self._set_table_filter(w),
+                          bd=0, highlightthickness=0, padx=10, pady=3,
+                          relief="flat", cursor="hand2", font=FONT_XS,
+                          bg=T["accent_soft"] if active else T["surface2"],
+                          fg=T["accent"] if active else T["muted"],
+                          activebackground=T["accent_soft"])
+            b.pack(side="left", padx=(0, 4))
+
+    # ══════════════════════════════════════════════════════════════════════════
+    #  ТЕМА
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _toggle_theme(self):
         self._theme_name = "dark" if self._theme_name == "light" else "light"
         self._T = THEMES[self._theme_name]
         self._repaint()
+        if self._view_data:
+            self._rebuild_chart()
 
-    # ── Status chip ───────────────────────────────────────────────────────────
-    def _render_status_chip(self, text: str, bg: str, fg: str) -> None:
+    # ══════════════════════════════════════════════════════════════════════════
+    #  СТАТУС-ПИЛЮЛЯ
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _render_status_chip(self, text: str, bg: str, fg: str):
         self._last_status = (text, bg, fg)
         c = self.status_canvas
         c.delete("all")
@@ -586,289 +917,554 @@ class ReportApp(tk.Tk):
         c.create_rectangle(r, 0, w-r, h, fill=bg, outline=bg)
         c.create_text(w/2, h/2, text=text, fill=fg, font=FONT_SM_B)
 
-    # ── Data loading ──────────────────────────────────────────────────────────
-    def _load_data(self) -> None:
-        try:
-            self.plans_df = load_plans(self.default_plans_path)
-            self.facts_df = load_facts(self.default_facts_path)
-            self._populate_filters()
-        except Exception as exc:
-            messagebox.showerror("Ошибка загрузки", str(exc))
+    # ══════════════════════════════════════════════════════════════════════════
+    #  ЗАГРУЗКА ФАЙЛОВ
+    # ══════════════════════════════════════════════════════════════════════════
 
-    def import_documents(self) -> None:
-        plan_path = filedialog.askopenfilename(
-            title="Выберите файл плана (.xlsx)",
-            initialdir=str(self.default_plans_path.parent),
-            filetypes=[("Excel", "*.xlsx"), ("Все файлы", "*.*")],
+    def _import_files(self):
+        paths = filedialog.askopenfilenames(
+            title="Выберите файлы данных",
+            filetypes=[
+                ("Все поддерживаемые", "*.csv *.json *.xlsx"),
+                ("CSV", "*.csv"),
+                ("JSON", "*.json"),
+                ("Excel", "*.xlsx"),
+                ("Все файлы", "*.*"),
+            ],
         )
-        if not plan_path:
+        if not paths:
             return
-        fact_path = filedialog.askopenfilename(
-            title="Выберите файл факта (.csv)",
-            initialdir=str(self.default_facts_path.parent),
-            filetypes=[("CSV", "*.csv"), ("Все файлы", "*.*")],
-        )
-        if not fact_path:
-            return
-        self.plan_path_var.set(plan_path)
-        self.fact_path_var.set(fact_path)
-        self.load_selected_data()
-
-    def clear_file(self, kind: str) -> None:
-        if kind == "plan":
-            self.plan_path_var.set("")
-        else:
-            self.fact_path_var.set("")
-        self._render_status_chip("Файлы не выбраны", "#c92a2a", "#ffe3e3")
-        self.plans_df = self.facts_df = self.metrics_df = self.current_figure = None
-        self._update_kpis(None)
-        for btn in (self.excel_btn, self.pdf_btn, self.html_btn):
-            btn.config(state="disabled")
-        if self.canvas:
-            self.canvas.get_tk_widget().destroy()
-            self.canvas = None
-        self.empty_state.grid(row=0, column=0, sticky="nsew")
-
-    def load_selected_data(self) -> None:
-        try:
-            plans_path = Path(self.plan_path_var.get()).expanduser().resolve()
-            facts_path = Path(self.fact_path_var.get()).expanduser().resolve()
-            if not plans_path.exists() or not facts_path.exists():
-                raise FileNotFoundError("Выберите оба файла перед загрузкой.")
-            self.plans_df = load_plans(plans_path)
-            self.facts_df = load_facts(facts_path)
-            self._populate_filters()
-            self._render_status_chip("Данные загружены ✓", "#2f9e44", "#d3f9d8")
-            self.plan_status.configure(text="✓", fg=self._T["green"])
-            self.fact_status.configure(text="✓", fg=self._T["green"])
-        except Exception as exc:
-            messagebox.showerror("Ошибка загрузки", str(exc))
-
-    # ── Generate report ───────────────────────────────────────────────────────
-    def generate_report(self) -> None:
-        try:
-            workshops = self._get_selected_workshops()
-            start, end = self.start_var.get(), self.end_var.get()
-            product   = self.product_var.get()
-            if start > end:
-                raise ValueError("Дата начала не может быть позже даты окончания.")
-            self.metrics_df = calculate_metrics(self.plans_df, self.facts_df, workshops, start, end, product)
-            if self.metrics_df.empty:
-                raise ValueError("Нет данных за выбранный период.")
-            self._update_kpis(self.metrics_df)
-            self.current_figure = build_charts(self.metrics_df)
-            if self.canvas:
-                self.canvas.get_tk_widget().destroy()
-            self.canvas = FigureCanvasTkAgg(self.current_figure, master=self.chart_frame)
-            self.canvas.draw()
-            self.canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-            self.empty_state.grid_forget()
-            for btn in (self.excel_btn, self.pdf_btn, self.html_btn):
-                btn.config(state="normal")
-        except Exception as exc:
-            messagebox.showerror("Ошибка отчёта", str(exc))
-            self._update_kpis(None)
-            for btn in (self.excel_btn, self.pdf_btn, self.html_btn):
-                btn.config(state="disabled")
-
-    # ── KPI ───────────────────────────────────────────────────────────────────
-    def _update_kpis(self, metrics_df) -> None:
-        T = self._T
-        if metrics_df is None or metrics_df.empty:
-            for card in self.kpi_cards.values():
-                card["value"].config(text="—", fg=T["text"])
-                card["hint"].config(text="Нет данных")
-            self._render_status_chip("Нет данных", "#c92a2a", "#ffe3e3")
-            return
-
-        plan_total = int(metrics_df["plan_qty"].sum())
-        fact_total = int(metrics_df["fact_qty"].sum())
-        dev_total  = int(metrics_df["deviation"].sum())
-        completion = 0.0 if plan_total == 0 else round(fact_total / plan_total * 100, 1)
-
-        def fmt(n: int) -> str:
-            return f"{n:,}".replace(",", "\u2009")
-
-        self.kpi_cards["plan"]["value"].config(text=fmt(plan_total), fg=T["accent"])
-        fact_col = T["green"] if fact_total >= plan_total else T["yellow"]
-        self.kpi_cards["fact"]["value"].config(text=fmt(fact_total), fg=fact_col)
-        pct_col = T["green"] if completion >= 100 else (T["yellow"] if completion >= 90 else T["red"])
-        self.kpi_cards["completion"]["value"].config(text=f"{completion:.1f}%", fg=pct_col)
-        dev_col = T["green"] if dev_total >= 0 else T["red"]
-        sign = "+" if dev_total >= 0 else ""
-        self.kpi_cards["deviation"]["value"].config(text=f"{sign}{fmt(abs(dev_total))}", fg=dev_col)
-        for key in ("plan", "fact", "completion", "deviation"):
-            self.kpi_cards[key]["hint"].config(text={
-                "plan": "Суммарный план", "fact": "Суммарный факт",
-                "completion": "% выполнения", "deviation": "Факт − план",
-            }[key])
-
-        if completion >= 100:
-            self._render_status_chip(f"{completion:.1f}% — план выполнен", "#2f9e44", "#d3f9d8")
-        elif completion >= 90:
-            self._render_status_chip(f"{completion:.1f}% — почти выполнен", "#e67700", "#fff3bf")
-        else:
-            self._render_status_chip(f"{completion:.1f}% — ниже плана", "#c92a2a", "#ffe3e3")
-
-    # ── Export ────────────────────────────────────────────────────────────────
-    def export_excel(self) -> None:
-        self._export("xlsx", export_excel)
-
-    def export_pdf(self) -> None:
-        self._export("pdf", export_pdf)
-
-    def export_html(self) -> None:
-        self._export("html", export_html)
-
-    def _export(self, ext: str, handler) -> None:
-        if self.metrics_df is None or self.current_figure is None:
-            messagebox.showwarning("Предупреждение", "Сначала сформируйте отчёт.")
-            return
-        ws_label = ("Все_цеха" if len(self._get_selected_workshops()) == len(self.workshop_vars)
-                    else "_".join(self._get_selected_workshops()))
-        file_name   = _safe_output_name(ws_label, self.start_var.get(), self.end_var.get(), ext)
-        export_dir  = Path(self.export_dir_var.get() or "exports").expanduser().resolve()
-        output_path = export_dir / file_name
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            handler(self.metrics_df, self.current_figure, output_path)
-            messagebox.showinfo("Экспорт завершён", f"Файл сохранён:\n{output_path.resolve()}")
-        except Exception as exc:
-            messagebox.showerror("Ошибка экспорта", str(exc))
-
-    # ── Filters ───────────────────────────────────────────────────────────────
-    def _populate_filters(self) -> None:
-        if self.plans_df is None or self.facts_df is None:
-            return
-        T = self._T
-        workshops = sorted(set(self.plans_df["workshop"]).union(self.facts_df["workshop"]))
-        months    = sorted(set(self.plans_df["date"]).union(self.facts_df["date"]))
-        products  = sorted(set(self.plans_df["product"]).union(self.facts_df["product"]))
-
-        self.workshop_check_widgets = {}
-        for child in self.workshop_checks_frame.winfo_children():
-            child.destroy()
-
-        # 2-column grid for checkboxes
-        for idx, name in enumerate(workshops):
-            var = self.workshop_vars.get(name, tk.BooleanVar(value=True))
-            self.workshop_vars[name] = var
-            col = idx % 2
-            row_idx = idx // 2
-            row_f = tk.Frame(self.workshop_checks_frame, bg=T["surface"])
-            row_f.grid(row=row_idx, column=col, sticky="ew", padx=(0, 4) if col == 0 else 0, pady=2)
-            cb = tk.Checkbutton(row_f, text=name, variable=var, onvalue=True, offvalue=False,
-                                bg=T["surface"], fg=T["text"], selectcolor=T["surface"],
-                                activebackground=T["surface"], activeforeground=T["text"],
-                                bd=0, anchor="w", font=FONT_SM)
-            cb.pack(side="left", fill="x", expand=True)
+        new_rows = []
+        for path in paths:
+            p = Path(path)
             try:
-                var.trace_add("write", lambda *_: self._refresh_chips())
-            except Exception:
-                pass
-            pct   = self._workshop_completion_pct(name)
-            color = T["green"] if pct >= 100 else (T["yellow"] if pct >= 90 else T["red"])
-            dot = tk.Canvas(row_f, width=10, height=10, bg=T["surface"], highlightthickness=0)
-            dot.pack(side="right", padx=4)
-            dot.create_oval(1, 1, 9, 9, fill=color, outline=color)
-            self.workshop_check_widgets[name] = (cb, dot)
+                rows = self._parse_file(p)
+                self._loaded_files.append({"name": p.name, "rows": len(rows), "ok": True})
+                new_rows.extend(rows)
+            except Exception as exc:
+                self._loaded_files.append({"name": p.name, "rows": 0, "ok": False, "err": str(exc)})
 
-        self._refresh_chips()
+        if new_rows:
+            self._all_data = _enrich(BUILTIN) + _enrich(new_rows)
+        self._repaint_file_pills()
+        self._rebuild_controls()
+        self._render_status_chip("Данные загружены — нажмите «Сформировать»",
+                                 self._T["yellow"], "#1a202c")
 
+    def _parse_file(self, path: Path) -> list[list]:
+        ext = path.suffix.lower()
+        if ext == ".json":
+            with open(path, encoding="utf-8") as f:
+                raw = json.load(f)
+            data = raw if isinstance(raw, list) else raw.get("data", [])
+            if data and isinstance(data[0], dict):
+                # ключи могут быть на русском или английском
+                def get(row, *keys):
+                    for k in keys:
+                        if k in row: return row[k]
+                    return 0
+                return [[
+                    get(r, "workshop", "Цех"),
+                    get(r, "date", "Период"),
+                    get(r, "product", "Продукт"),
+                    get(r, "plan_qty", "План"),
+                    get(r, "fact_qty", "Факт"),
+                ] for r in data]
+            return [[r[0], r[1], r[2], r[3], r[4]] for r in data]
+
+        elif ext == ".csv":
+            rows = []
+            with open(path, encoding="utf-8-sig") as f:
+                sample = f.read(1024); f.seek(0)
+                dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
+                reader  = csv.reader(f, dialect)
+                header  = next(reader)
+                # определяем индексы по заголовку
+                h = [c.strip().lower() for c in header]
+                def idx(*keys):
+                    for k in keys:
+                        for i, hh in enumerate(h):
+                            if k in hh: return i
+                    return None
+                iws  = idx("workshop","цех") or 0
+                idt  = idx("date","период","месяц") or 1
+                ipr  = idx("product","продукт") or 2
+                ipl  = idx("plan","план") or 3
+                ift  = idx("fact","факт") or 4
+                for row in reader:
+                    if not row or not row[0].strip(): continue
+                    rows.append([row[iws], row[idt], row[ipr],
+                                 float(row[ipl] or 0), float(row[ift] or 0)])
+            return rows
+
+        elif ext == ".xlsx":
+            if not HAS_PANDAS:
+                raise ImportError("Для XLSX установите pandas и openpyxl:\npip install pandas openpyxl")
+            df = pd.read_excel(path)
+            df.columns = [c.strip().lower() for c in df.columns]
+            def col(*keys):
+                for k in keys:
+                    for c in df.columns:
+                        if k in c: return c
+                return None
+            ws_col = col("workshop","цех")
+            dt_col = col("date","период","месяц")
+            pr_col = col("product","продукт")
+            pl_col = col("plan","план")
+            ft_col = col("fact","факт")
+            rows = []
+            for _, row in df.iterrows():
+                rows.append([str(row[ws_col]), str(row[dt_col]), str(row[pr_col]),
+                             float(row[pl_col] or 0), float(row[ft_col] or 0)])
+            return rows
+        else:
+            raise ValueError(f"Неподдерживаемый формат: {ext}")
+
+    # ══════════════════════════════════════════════════════════════════════════
+    #  КОНТРОЛЫ (цеха / периоды / продукция)
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _rebuild_controls(self):
+        T = self._T
+        workshops = sorted({r[0] for r in self._all_data})
+        months    = sorted({r[1] for r in self._all_data})
+        products  = sorted({r[2] for r in self._all_data})
+
+        # WS vars
+        for w in workshops:
+            if w not in self._ws_vars:
+                self._ws_vars[w] = tk.BooleanVar(value=True)
+
+        self._rebuild_ws_list(workshops)
+        self._repaint_filter_chips()
+
+        prev_start = self.start_var.get() or (months[0] if months else "")
+        prev_end   = self.end_var.get()   or (months[-1] if months else "")
         self.start_combo["values"] = months
         self.end_combo["values"]   = months
-        self.product_combo["values"] = ["Все", *products]
-        if months:
-            self.start_var.set(months[0])
-            self.end_var.set(months[-1])
-        self.product_var.set("Все")
+        self.start_var.set(prev_start if prev_start in months else (months[0] if months else ""))
+        self.end_var.set(prev_end   if prev_end   in months else (months[-1] if months else ""))
 
-    def _get_selected_workshops(self) -> list[str]:
-        selected = [n for n, v in self.workshop_vars.items() if v.get()]
-        return selected or list(self.workshop_vars.keys())
+        self.product_combo["values"] = ["Все"] + products
+        if not self.product_var.get():
+            self.product_var.set("Все")
 
-    def _filter_workshops(self) -> None:
-        q = self.search_var.get().lower().strip()
-        for name, (cb, dot) in self.workshop_check_widgets.items():
+    def _rebuild_ws_list(self, workshops):
+        T = self._T
+        self._ws_check_widgets.clear()
+        for child in self.ws_frame.winfo_children():
+            child.destroy()
+        for idx, name in enumerate(workshops):
+            col = idx % 2
+            row_f = tk.Frame(self.ws_frame, bg=T["sidebar_bg"])
+            row_f.grid(row=idx // 2, column=col, sticky="ew",
+                       padx=(0, 4) if col == 0 else 0, pady=2)
+            cb = tk.Checkbutton(row_f, text=name, variable=self._ws_vars[name],
+                                bg=T["sidebar_bg"], fg=T["text"],
+                                selectcolor=T["sidebar_bg"],
+                                activebackground=T["sidebar_bg"],
+                                activeforeground=T["text"],
+                                bd=0, anchor="w", font=FONT_XS, cursor="hand2")
+            cb.pack(side="left")
+            pct = self._ws_pct(name)
+            color = T["green"] if pct >= 100 else (T["yellow"] if pct >= 90 else T["red"])
+            dot = tk.Canvas(row_f, width=8, height=8,
+                            bg=T["sidebar_bg"], highlightthickness=0)
+            dot.pack(side="right", padx=2)
+            dot.create_oval(1, 1, 7, 7, fill=color, outline=color)
+            self._ws_check_widgets[name] = (cb, dot)
+        self._refresh_ws_chips()
+
+    def _ws_pct(self, ws: str) -> float:
+        rows = [r for r in self._all_data if r[0] == ws]
+        plan = sum(r[3] for r in rows)
+        fact = sum(r[4] for r in rows)
+        return (fact / plan * 100) if plan else 0.0
+
+    def _filter_ws_list(self):
+        q = self.ws_search_var.get().lower()
+        for name, (cb, dot) in self._ws_check_widgets.items():
             parent = cb.master
             if q and q not in name.lower():
                 parent.grid_remove()
             else:
                 parent.grid()
 
-    def _refresh_chips(self) -> None:
+    def _refresh_ws_chips(self):
         T = self._T
         for child in self.chips_frame.winfo_children():
             child.destroy()
-        self.chips_frame.configure(bg=T["surface"])
-        for name, var in self.workshop_vars.items():
+        self.chips_frame.configure(bg=T["sidebar_bg"])
+        for name, var in self._ws_vars.items():
             if var.get():
                 chip = tk.Frame(self.chips_frame, bg=T["chip_bg"], padx=6, pady=3)
-                chip.pack(side="left", padx=(0, 5), pady=2)
-                tk.Label(chip, text=name, bg=T["chip_bg"], fg=T["chip_fg"], font=FONT_SM_B).pack(side="left")
-                x = tk.Label(chip, text=" ✕", bg=T["chip_bg"], fg=T["chip_fg"], font=FONT_SM, cursor="hand2")
+                chip.pack(side="left", padx=(0, 4), pady=2)
+                tk.Label(chip, text=name, bg=T["chip_bg"], fg=T["chip_fg"],
+                         font=("Segoe UI", 8, "bold")).pack(side="left")
+                x = tk.Label(chip, text=" ✕", bg=T["chip_bg"], fg=T["chip_fg"],
+                             font=FONT_XS, cursor="hand2")
                 x.pack(side="left")
-                x.bind("<Button-1>", lambda e, n=name: (self.workshop_vars[n].set(False), self._refresh_chips()))
+                x.bind("<Button-1>", lambda e, n=name: (
+                    self._ws_vars[n].set(False), self._refresh_ws_chips()))
 
-    def _workshop_completion_pct(self, workshop: str) -> float:
-        try:
-            plan = int(self.plans_df[self.plans_df["workshop"] == workshop]["plan_qty"].sum())
-            fact = int(self.facts_df[self.facts_df["workshop"] == workshop]["fact_qty"].sum())
-            return 0.0 if plan == 0 else round(fact / plan * 100, 1)
-        except Exception:
-            return 0.0
+    # ══════════════════════════════════════════════════════════════════════════
+    #  ГЕНЕРАЦИЯ ОТЧЁТА
+    # ══════════════════════════════════════════════════════════════════════════
 
-    def _open_kpi_details(self, key: str) -> None:
-        if self.metrics_df is None or self.metrics_df.empty:
-            return
+    def _generate_report(self):
         T = self._T
-        top = tk.Toplevel(self)
-        top.title(f"Детали — {key}")
-        top.configure(bg=T["bg"])
-        top.geometry("560x360")
-        top.minsize(400, 260)
-        top.rowconfigure(0, weight=1)
-        top.columnconfigure(0, weight=1)
+        start   = self.start_var.get()
+        end     = self.end_var.get()
+        product = self.product_var.get() if hasattr(self, "product_var") else "Все"
+        sel_ws  = [n for n, v in self._ws_vars.items() if v.get()]
 
-        style = ttk.Style(top)
-        style.configure("Details.Treeview",
-                         background=T["surface"], foreground=T["text"],
-                         fieldbackground=T["surface"], rowheight=26, font=FONT_SM)
-        style.configure("Details.Treeview.Heading",
-                         background=T["surface2"] if self._theme_name == "light" else T["card_bg"],
-                         foreground=T["text_muted"], font=FONT_SM_B)
+        if not sel_ws:
+            messagebox.showwarning("Предупреждение", "Выберите хотя бы один цех.")
+            return
+        if start and end and start > end:
+            messagebox.showwarning("Предупреждение", "Дата начала позже даты окончания.")
+            return
 
-        frame = tk.Frame(top, bg=T["bg"])
-        frame.grid(row=0, column=0, sticky="nsew", padx=12, pady=12)
-        frame.rowconfigure(0, weight=1)
-        frame.columnconfigure(0, weight=1)
+        self._view_data = [
+            r for r in self._all_data
+            if r[0] in sel_ws
+            and (not start or r[1] >= start)
+            and (not end   or r[1] <= end)
+            and (product == "Все" or r[2] == product)
+        ]
 
-        cols = ("workshop", "plan_qty", "fact_qty", "completion_pct", "deviation")
-        heads = {"workshop": "Цех", "plan_qty": "План", "fact_qty": "Факт",
-                 "completion_pct": "Выполнение", "deviation": "Отклонение"}
-        tree = ttk.Treeview(frame, columns=cols, show="headings", style="Details.Treeview")
-        for c in cols:
-            tree.heading(c, text=heads[c])
-            tree.column(c, width=100, anchor="center", stretch=True)
-        tree.column("workshop", width=130, anchor="w", stretch=True)
+        if not self._view_data:
+            self._render_status_chip("❌ Нет данных за период", T["red"], "#ffffff")
+            return
 
-        agg = (self.metrics_df.groupby("workshop")
-               .agg({"plan_qty": "sum", "fact_qty": "sum",
-                     "completion_pct": "mean", "deviation": "sum"})
-               .reset_index())
-        for _, row in agg.iterrows():
-            tree.insert("", "end", values=(
-                row["workshop"], int(row["plan_qty"]), int(row["fact_qty"]),
-                f"{row['completion_pct']:.1f}%", int(row["deviation"]),
+        self._update_kpi(self._view_data)
+        self._filter_ws_active = "all"
+        self._repaint_filter_chips()
+        self._render_table()
+        if self._active_tab == "charts":
+            self._rebuild_chart()
+        self._enable_export(True)
+
+        avg_pct = sum(r[6] for r in self._view_data) / len(self._view_data)
+        ws_str  = ", ".join(sel_ws) if len(sel_ws) <= 3 else f"{len(sel_ws)} цехов"
+        period  = f"{start} – {end}" if start and end else "весь период"
+        self.lbl_subtitle.configure(text=f"{ws_str} · {period}")
+
+        if avg_pct >= 100:
+            self._render_status_chip(f"✅ {avg_pct:.1f}% — план выполнен",
+                                     T["green"], T["green_soft"])
+        elif avg_pct >= 90:
+            self._render_status_chip(f"⚠️ {avg_pct:.1f}% — почти выполнен",
+                                     T["yellow"], T["yellow_soft"])
+        else:
+            self._render_status_chip(f"❌ {avg_pct:.1f}% — ниже плана",
+                                     T["red"], T["red_soft"])
+
+    # ══════════════════════════════════════════════════════════════════════════
+    #  KPI
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _update_kpi(self, data: list[list]):
+        T = self._T
+        plan  = sum(r[3] for r in data)
+        fact  = sum(r[4] for r in data)
+        dev   = sum(r[5] for r in data)
+        avg   = sum(r[6] for r in data) / len(data)
+        over  = sum(1 for r in data if r[5] > 0)
+        under = sum(1 for r in data if r[5] < 0)
+        fmt   = lambda n: f"{abs(int(n)):,}".replace(",", "\u2009")
+
+        def set_kpi(key, text, color):
+            self.kpi_cards[key]["val"].configure(text=text, fg=color)
+
+        set_kpi("plan",  fmt(plan), T["accent"])
+        set_kpi("fact",  fmt(fact), T["green"] if fact >= plan else T["yellow"])
+        set_kpi("pct",   f"{avg:.1f}%",
+                T["green"] if avg >= 100 else (T["yellow"] if avg >= 90 else T["red"]))
+        set_kpi("dev",   ("+" if dev >= 0 else "−") + fmt(dev),
+                T["green"] if dev >= 0 else T["red"])
+        set_kpi("over",  str(over),  T["green"])
+        set_kpi("under", str(under), T["red"])
+
+    # ══════════════════════════════════════════════════════════════════════════
+    #  ТАБЛИЦА
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _set_table_filter(self, ws: str):
+        self._filter_ws_active = ws
+        self._repaint_filter_chips()
+        self._render_table()
+
+    def _sort_by(self, col: str):
+        cols = ("workshop","date","product","plan","fact","deviation","pct")
+        c = cols.index(col)
+        if self._sort_col == c:
+            self._sort_dir *= -1
+        else:
+            self._sort_col = c
+            self._sort_dir = 1
+        self._render_table()
+
+    def _render_table(self):
+        q   = self.search_var.get().strip().lower()
+        fws = getattr(self, "_filter_ws_active", "all")
+        data = [
+            r for r in self._view_data
+            if (fws == "all" or r[0] == fws)
+            and (not q or q in " ".join(str(x) for x in r[:3]).lower())
+        ]
+        data.sort(key=lambda r: (str(r[self._sort_col]).lower()
+                                 if isinstance(r[self._sort_col], str)
+                                 else r[self._sort_col]),
+                  reverse=(self._sort_dir == -1))
+
+        self.tree.delete(*self.tree.get_children())
+        T = self._T
+        for r in data:
+            sign = "+" if r[5] > 0 else ""
+            pct  = f"{r[6]:.1f}%"
+            self.tree.insert("", "end", values=(
+                r[0], r[1], r[2],
+                f"{int(r[3]):,}".replace(",","\u2009"),
+                f"{int(r[4]):,}".replace(",","\u2009"),
+                f"{sign}{int(r[5]):,}".replace(",","\u2009"),
+                pct,
             ))
+            # цветные теги
+            tag = "pos" if r[5] > 0 else ("neg" if r[5] < 0 else "neu")
+            self.tree.item(self.tree.get_children()[-1], tags=(tag,))
 
-        sb = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
-        tree.configure(yscrollcommand=sb.set)
-        tree.grid(row=0, column=0, sticky="nsew")
-        sb.grid(row=0, column=1, sticky="ns")
+        self.tree.tag_configure("pos", foreground=T["green"])
+        self.tree.tag_configure("neg", foreground=T["red"])
+        self.tree.tag_configure("neu", foreground=T["muted"])
 
-    def choose_export_dir(self) -> None:
-        path = filedialog.askdirectory(title="Выберите папку для экспорта",
-                                       initialdir=str(self.default_export_dir))
-        if path:
-            self.export_dir_var.set(path)
+        self.lbl_row_count.configure(text=f"Записей: {len(data)}")
+
+    # ══════════════════════════════════════════════════════════════════════════
+    #  ВКЛАДКИ
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _switch_tab(self, tab: str, init: bool = False):
+        T = self._T
+        self._active_tab = tab
+
+        if tab == "table":
+            self.table_panel.grid(row=6, column=0, sticky="nsew")
+            self.chart_panel.grid_forget()
+        else:
+            self.chart_panel.grid(row=6, column=0, sticky="nsew")
+            self.table_panel.grid_forget()
+            if not init and self._view_data:
+                self._rebuild_chart()
+
+        # перерисовать кнопки вкладок
+        for tid, btn in self.tab_btns.items():
+            active = tid == tab
+            btn.configure(bg=T["accent_soft"] if active else T["bg"],
+                          fg=T["accent"] if active else T["muted"])
+        self._tab_sep.configure(bg=T["accent"])
+
+    # ══════════════════════════════════════════════════════════════════════════
+    #  ГРАФИКИ
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _set_chart_type(self, ct: str):
+        self._chart_type = ct
+        self._repaint_chart_type_btns()
+        if self._view_data:
+            self._rebuild_chart()
+
+    def _rebuild_chart(self):
+        T = self._T
+        if not self._view_data:
+            return
+        self.chart_empty.grid_forget()
+
+        months    = sorted({r[1] for r in self._view_data})
+        workshops = sorted({r[0] for r in self._view_data})
+
+        # Удалить старый холст
+        if self._chart_canvas:
+            self._chart_canvas.get_tk_widget().destroy()
+            self._chart_canvas = None
+        if self._current_figure:
+            plt.close(self._current_figure)
+
+        fig = plt.Figure(figsize=(8, 3.4), dpi=96)
+        fig.patch.set_facecolor(T["mpl_bg"])
+        ax = fig.add_subplot(111)
+        ax.set_facecolor(T["mpl_axes"])
+        ax.tick_params(colors=T["mpl_tick"], labelsize=8)
+        ax.xaxis.label.set_color(T["mpl_tick"])
+        ax.yaxis.label.set_color(T["mpl_tick"])
+        for spine in ax.spines.values():
+            spine.set_edgecolor(T["mpl_grid"])
+        ax.grid(axis="y", color=T["mpl_grid"], linewidth=.7, linestyle="--")
+        ax.set_xticks(range(len(months)))
+        ax.set_xticklabels(months, rotation=30, ha="right", fontsize=8)
+
+        if self._chart_type == "pct":
+            # % выполнения по цехам
+            for i, ws in enumerate(workshops):
+                vals = []
+                for m in months:
+                    rows = [r for r in self._view_data if r[0] == ws and r[1] == m]
+                    vals.append(sum(r[6] for r in rows) / len(rows) if rows else None)
+                ax.plot(range(len(months)), vals, marker="o", markersize=4,
+                        label=ws, color=PALETTE[i % len(PALETTE)],
+                        linewidth=1.8, linestyle="-")
+            ax.axhline(100, color=T["muted"], linewidth=1, linestyle=":")
+            ax.set_ylabel("Выполнение, %", color=T["mpl_tick"], fontsize=8)
+            ax.set_title("Процент выполнения по цехам", color=T["mpl_text"], fontsize=10, pad=8)
+
+        elif self._chart_type == "line":
+            for i, ws in enumerate(workshops):
+                color = PALETTE[i % len(PALETTE)]
+                plans = [sum(r[3] for r in self._view_data if r[0]==ws and r[1]==m) for m in months]
+                facts = [sum(r[4] for r in self._view_data if r[0]==ws and r[1]==m) for m in months]
+                ax.plot(range(len(months)), plans, color=color, linewidth=1.2,
+                        linestyle="--", alpha=.6)
+                ax.plot(range(len(months)), facts, color=color, linewidth=2,
+                        label=ws, marker="o", markersize=3)
+            ax.set_ylabel("Ед. продукции", color=T["mpl_tick"], fontsize=8)
+            ax.set_title("Факт (сплошная) vs план (пунктир)", color=T["mpl_text"], fontsize=10, pad=8)
+
+        else:  # bar
+            n_ws  = len(workshops)
+            width = 0.8 / max(n_ws, 1)
+            xs    = range(len(months))
+            for i, ws in enumerate(workshops):
+                color = PALETTE[i % len(PALETTE)]
+                facts = [sum(r[4] for r in self._view_data if r[0]==ws and r[1]==m) for m in months]
+                offset = (i - n_ws/2 + .5) * width
+                ax.bar([x + offset for x in xs], facts, width=width*0.85,
+                       label=ws, color=color, alpha=.88)
+            ax.set_ylabel("Факт, ед.", color=T["mpl_tick"], fontsize=8)
+            ax.set_title("Факт по цехам", color=T["mpl_text"], fontsize=10, pad=8)
+
+        legend = ax.legend(fontsize=7.5, framealpha=.8,
+                           facecolor=T["mpl_bg"], edgecolor=T["mpl_grid"],
+                           labelcolor=T["mpl_text"])
+        fig.tight_layout(pad=1.4)
+
+        self._current_figure = fig
+        self._chart_canvas   = FigureCanvasTkAgg(fig, master=self.chart_area)
+        self._chart_canvas.draw()
+        self._chart_canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+
+    # ══════════════════════════════════════════════════════════════════════════
+    #  ЭКСПОРТ
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _enable_export(self, on: bool):
+        state = "normal" if on else "disabled"
+        for btn in (self.exp_csv_btn, self.exp_json_btn, self.exp_html_btn):
+            btn.configure(state=state)
+
+    def _ask_save(self, ext: str, desc: str) -> Optional[Path]:
+        stamp = datetime.now().strftime("%Y%m%d_%H%M")
+        path  = filedialog.asksaveasfilename(
+            title=f"Сохранить {desc}",
+            defaultextension=f".{ext}",
+            initialfile=f"workshop_report_{stamp}.{ext}",
+            filetypes=[(desc, f"*.{ext}"), ("Все файлы", "*.*")],
+        )
+        return Path(path) if path else None
+
+    def _export_csv(self):
+        if not self._view_data: return
+        path = self._ask_save("csv", "CSV файл")
+        if not path: return
+        with open(path, "w", newline="", encoding="utf-8-sig") as f:
+            w = csv.writer(f, delimiter=";")
+            w.writerow(["Цех","Период","Продукт","План","Факт","Отклонение","Выполнение %"])
+            for r in self._view_data:
+                w.writerow([r[0], r[1], r[2], r[3], r[4], r[5], r[6]])
+        messagebox.showinfo("Экспорт", f"CSV сохранён:\n{path}")
+
+    def _export_json(self):
+        if not self._view_data: return
+        path = self._ask_save("json", "JSON файл")
+        if not path: return
+        keys = ["workshop","date","product","plan_qty","fact_qty","deviation","completion_pct"]
+        obj  = {"generated": datetime.now().isoformat(),
+                "data": [dict(zip(keys, r)) for r in self._view_data]}
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(obj, f, ensure_ascii=False, indent=2)
+        messagebox.showinfo("Экспорт", f"JSON сохранён:\n{path}")
+
+    def _export_html(self):
+        if not self._view_data: return
+        path = self._ask_save("html", "HTML отчёт")
+        if not path: return
+
+        plan  = sum(r[3] for r in self._view_data)
+        fact  = sum(r[4] for r in self._view_data)
+        avg   = sum(r[6] for r in self._view_data) / len(self._view_data)
+        stamp = datetime.now().strftime("%d.%m.%Y %H:%M")
+
+        rows_html = ""
+        for r in self._view_data:
+            sign = "+" if r[5] > 0 else ""
+            cls  = "pos" if r[5] > 0 else ("neg" if r[5] < 0 else "")
+            rows_html += (
+                f"<tr><td>{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td>"
+                f"<td>{int(r[3]):,}</td><td>{int(r[4]):,}</td>"
+                f"<td class='{cls}'>{sign}{int(r[5]):,}</td>"
+                f"<td>{r[6]:.1f}%</td></tr>\n"
+            )
+
+        html = f"""<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"/>
+<title>WorkshopReport</title>
+<style>
+body{{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1a202c;padding:32px}}
+h1{{margin-bottom:4px;font-size:24px}}
+.sub{{color:#718096;font-size:13px;margin-bottom:24px}}
+.kpis{{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}}
+.k{{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;min-width:130px}}
+.k-l{{font-size:10px;font-weight:700;text-transform:uppercase;color:#718096;
+      letter-spacing:.07em;margin-bottom:6px}}
+.k-v{{font-size:24px;font-weight:700;color:#3b5bdb}}
+table{{width:100%;border-collapse:collapse;background:#fff;
+       border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.07)}}
+th{{background:#f7f9fc;padding:10px 14px;font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.07em;color:#718096;
+    text-align:left;border-bottom:2px solid #e2e8f0}}
+td{{padding:9px 14px;border-bottom:1px solid #e2e8f0;font-size:13px}}
+tr:last-child td{{border-bottom:none}}
+tr:hover td{{background:#f7f9fc}}
+.pos{{color:#2f9e44;font-weight:600}}
+.neg{{color:#c92a2a;font-weight:600}}
+.footer{{margin-top:20px;font-size:11px;color:#a0aec0}}
+</style></head><body>
+<h1>Отчёт по цехам</h1>
+<p class="sub">Сформирован: {stamp}</p>
+<div class="kpis">
+  <div class="k"><div class="k-l">Итого план</div>
+    <div class="k-v">{int(plan):,}</div></div>
+  <div class="k"><div class="k-l">Итого факт</div>
+    <div class="k-v">{int(fact):,}</div></div>
+  <div class="k"><div class="k-l">Среднее выполнение</div>
+    <div class="k-v">{avg:.1f}%</div></div>
+</div>
+<table>
+<thead><tr><th>Цех</th><th>Период</th><th>Продукт</th>
+<th>План</th><th>Факт</th><th>Отклонение</th><th>Выполнение %</th></tr></thead>
+<tbody>{rows_html}</tbody></table>
+<div class="footer">Экспорт WorkshopReport · {stamp}</div>
+</body></html>"""
+
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(html)
+        messagebox.showinfo("Экспорт", f"HTML сохранён:\n{path}")
+        webbrowser.open(path.as_uri())
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  ТОЧКА ВХОДА
+# ══════════════════════════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    app = ReportApp()
+    app.mainloop()
