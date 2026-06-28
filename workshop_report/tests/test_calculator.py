@@ -3,7 +3,13 @@
 
 import pandas as pd
 
-from src.calculator import calculate_metrics
+try:
+    from workshop_report.src.calculator import calculate_metrics
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from src.calculator import calculate_metrics
 
 
 def test_calculate_metrics_correct_values() -> None:

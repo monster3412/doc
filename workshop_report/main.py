@@ -1,7 +1,13 @@
 # === ФАЙЛ: main.py ===
 """Точка входа приложения WorkshopReport."""
 
-from src.ui import ReportApp
+try:
+    from workshop_report.src.ui import ReportApp
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from src.ui import ReportApp
 
 
 def main() -> None:

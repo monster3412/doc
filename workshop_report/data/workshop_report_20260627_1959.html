@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"/>
+<title>WorkshopReport</title>
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1a202c;padding:32px}
+h1{margin-bottom:4px;font-size:24px}
+.sub{color:#718096;font-size:13px;margin-bottom:24px}
+.kpis{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
+.k{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;min-width:130px}
+.k-l{font-size:10px;font-weight:700;text-transform:uppercase;color:#718096;
+      letter-spacing:.07em;margin-bottom:6px}
+.k-v{font-size:24px;font-weight:700;color:#3b5bdb}
+table{width:100%;border-collapse:collapse;background:#fff;
+       border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.07);margin-bottom:28px}
+th{background:#f7f9fc;padding:10px 14px;font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.07em;color:#718096;
+    text-align:left;border-bottom:2px solid #e2e8f0}
+td{padding:9px 14px;border-bottom:1px solid #e2e8f0;font-size:13px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f7f9fc}
+.pos{color:#2f9e44;font-weight:600}
+.neg{color:#c92a2a;font-weight:600}
+.footer{margin-top:20px;font-size:11px;color:#a0aec0}
+</style></head><body>
+<h1>Отчёт по цехам</h1>
+<p class="sub">Сформирован: 27.06.2026 19:59</p>
+<div class="kpis">
+  <div class="k"><div class="k-l">Итого план</div>
+    <div class="k-v">58,224</div></div>
+  <div class="k"><div class="k-l">Итого факт</div>
+    <div class="k-v">54,016</div></div>
+    <div class="k"><div class="k-l">Среднее выполнение</div>
+        <div class="k-v">92.8%</div></div>
+</div>
+<h2>Детальная таблица</h2>
+<table>
+<thead><tr><th>Цех</th><th>Период</th><th>Продукт</th>
+<th>План</th><th>Факт</th><th>Отклонение</th><th>Выполнение %</th></tr></thead>
+<tbody><tr><td>Цех Alpha</td><td>2025-01</td><td>Деталь A</td><td>108</td><td>112</td><td class='pos'>+4</td><td>103.7%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-01</td><td>Корпус C</td><td>98</td><td>61</td><td class='neg'>-37</td><td>62.2%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-01</td><td>Кронштейн F</td><td>77</td><td>85</td><td class='pos'>+8</td><td>110.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-01</td><td>Модуль D</td><td>84</td><td>93</td><td class='pos'>+9</td><td>110.7%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-01</td><td>Плата H</td><td>90</td><td>82</td><td class='neg'>-8</td><td>91.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-01</td><td>Рама E</td><td>112</td><td>99</td><td class='neg'>-13</td><td>88.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-01</td><td>Узел B</td><td>121</td><td>89</td><td class='neg'>-32</td><td>73.6%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-01</td><td>Шток G</td><td>130</td><td>76</td><td class='neg'>-54</td><td>58.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-02</td><td>Деталь A</td><td>108</td><td>75</td><td class='neg'>-33</td><td>69.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-02</td><td>Корпус C</td><td>88</td><td>106</td><td class='pos'>+18</td><td>120.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-02</td><td>Кронштейн F</td><td>80</td><td>132</td><td class='pos'>+52</td><td>165.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-02</td><td>Модуль D</td><td>92</td><td>94</td><td class='pos'>+2</td><td>102.2%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-02</td><td>Плата H</td><td>122</td><td>88</td><td class='neg'>-34</td><td>72.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-02</td><td>Рама E</td><td>80</td><td>100</td><td class='pos'>+20</td><td>125.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-02</td><td>Узел B</td><td>127</td><td>63</td><td class='neg'>-64</td><td>49.6%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-02</td><td>Шток G</td><td>93</td><td>94</td><td class='pos'>+1</td><td>101.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-03</td><td>Деталь A</td><td>105</td><td>78</td><td class='neg'>-27</td><td>74.3%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-03</td><td>Корпус C</td><td>93</td><td>117</td><td class='pos'>+24</td><td>125.8%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-03</td><td>Кронштейн F</td><td>122</td><td>80</td><td class='neg'>-42</td><td>65.6%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-03</td><td>Модуль D</td><td>72</td><td>122</td><td class='pos'>+50</td><td>169.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-03</td><td>Плата H</td><td>93</td><td>95</td><td class='pos'>+2</td><td>102.2%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-03</td><td>Рама E</td><td>91</td><td>0</td><td class='neg'>-91</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-03</td><td>Узел B</td><td>109</td><td>89</td><td class='neg'>-20</td><td>81.7%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-03</td><td>Шток G</td><td>71</td><td>99</td><td class='pos'>+28</td><td>139.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-04</td><td>Деталь A</td><td>113</td><td>126</td><td class='pos'>+13</td><td>111.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-04</td><td>Корпус C</td><td>107</td><td>94</td><td class='neg'>-13</td><td>87.9%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-04</td><td>Кронштейн F</td><td>90</td><td>119</td><td class='pos'>+29</td><td>132.2%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-04</td><td>Модуль D</td><td>71</td><td>135</td><td class='pos'>+64</td><td>190.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-04</td><td>Плата H</td><td>81</td><td>100</td><td class='pos'>+19</td><td>123.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-04</td><td>Рама E</td><td>129</td><td>81</td><td class='neg'>-48</td><td>62.8%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-04</td><td>Узел B</td><td>99</td><td>73</td><td class='neg'>-26</td><td>73.7%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-04</td><td>Шток G</td><td>102</td><td>79</td><td class='neg'>-23</td><td>77.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-05</td><td>Деталь A</td><td>127</td><td>111</td><td class='neg'>-16</td><td>87.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-05</td><td>Корпус C</td><td>130</td><td>89</td><td class='neg'>-41</td><td>68.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-05</td><td>Кронштейн F</td><td>118</td><td>84</td><td class='neg'>-34</td><td>71.2%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-05</td><td>Модуль D</td><td>113</td><td>113</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-05</td><td>Плата H</td><td>128</td><td>0</td><td class='neg'>-128</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-05</td><td>Рама E</td><td>94</td><td>112</td><td class='pos'>+18</td><td>119.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-05</td><td>Узел B</td><td>91</td><td>114</td><td class='pos'>+23</td><td>125.3%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-05</td><td>Шток G</td><td>96</td><td>123</td><td class='pos'>+27</td><td>128.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-06</td><td>Деталь A</td><td>111</td><td>87</td><td class='neg'>-24</td><td>78.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-06</td><td>Корпус C</td><td>129</td><td>0</td><td class='neg'>-129</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-06</td><td>Кронштейн F</td><td>116</td><td>124</td><td class='pos'>+8</td><td>106.9%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-06</td><td>Модуль D</td><td>85</td><td>93</td><td class='pos'>+8</td><td>109.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-06</td><td>Плата H</td><td>113</td><td>85</td><td class='neg'>-28</td><td>75.2%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-06</td><td>Рама E</td><td>84</td><td>0</td><td class='neg'>-84</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-06</td><td>Узел B</td><td>97</td><td>68</td><td class='neg'>-29</td><td>70.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-06</td><td>Шток G</td><td>120</td><td>0</td><td class='neg'>-120</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-07</td><td>Деталь A</td><td>124</td><td>145</td><td class='pos'>+21</td><td>116.9%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-07</td><td>Корпус C</td><td>126</td><td>110</td><td class='neg'>-16</td><td>87.3%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-07</td><td>Кронштейн F</td><td>120</td><td>89</td><td class='neg'>-31</td><td>74.2%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-07</td><td>Модуль D</td><td>72</td><td>125</td><td class='pos'>+53</td><td>173.6%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-07</td><td>Плата H</td><td>90</td><td>115</td><td class='pos'>+25</td><td>127.8%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-07</td><td>Рама E</td><td>106</td><td>79</td><td class='neg'>-27</td><td>74.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-07</td><td>Узел B</td><td>121</td><td>92</td><td class='neg'>-29</td><td>76.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-07</td><td>Шток G</td><td>76</td><td>80</td><td class='pos'>+4</td><td>105.3%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-08</td><td>Деталь A</td><td>78</td><td>89</td><td class='pos'>+11</td><td>114.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-08</td><td>Корпус C</td><td>87</td><td>138</td><td class='pos'>+51</td><td>158.6%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-08</td><td>Кронштейн F</td><td>129</td><td>100</td><td class='neg'>-29</td><td>77.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-08</td><td>Модуль D</td><td>73</td><td>119</td><td class='pos'>+46</td><td>163.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-08</td><td>Плата H</td><td>119</td><td>103</td><td class='neg'>-16</td><td>86.6%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-08</td><td>Рама E</td><td>94</td><td>113</td><td class='pos'>+19</td><td>120.2%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-08</td><td>Узел B</td><td>108</td><td>93</td><td class='neg'>-15</td><td>86.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-08</td><td>Шток G</td><td>83</td><td>142</td><td class='pos'>+59</td><td>171.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-09</td><td>Деталь A</td><td>127</td><td>0</td><td class='neg'>-127</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-09</td><td>Корпус C</td><td>95</td><td>127</td><td class='pos'>+32</td><td>133.7%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-09</td><td>Кронштейн F</td><td>89</td><td>0</td><td class='neg'>-89</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-09</td><td>Модуль D</td><td>122</td><td>0</td><td class='neg'>-122</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-09</td><td>Плата H</td><td>116</td><td>91</td><td class='neg'>-25</td><td>78.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-09</td><td>Рама E</td><td>71</td><td>126</td><td class='pos'>+55</td><td>177.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-09</td><td>Узел B</td><td>78</td><td>96</td><td class='pos'>+18</td><td>123.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-09</td><td>Шток G</td><td>97</td><td>96</td><td class='neg'>-1</td><td>99.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-10</td><td>Деталь A</td><td>129</td><td>103</td><td class='neg'>-26</td><td>79.8%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-10</td><td>Корпус C</td><td>113</td><td>123</td><td class='pos'>+10</td><td>108.8%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-10</td><td>Кронштейн F</td><td>116</td><td>0</td><td class='neg'>-116</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-10</td><td>Модуль D</td><td>130</td><td>79</td><td class='neg'>-51</td><td>60.8%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-10</td><td>Плата H</td><td>83</td><td>60</td><td class='neg'>-23</td><td>72.3%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-10</td><td>Рама E</td><td>77</td><td>87</td><td class='pos'>+10</td><td>113.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-10</td><td>Узел B</td><td>76</td><td>108</td><td class='pos'>+32</td><td>142.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-10</td><td>Шток G</td><td>104</td><td>129</td><td class='pos'>+25</td><td>124.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-11</td><td>Деталь A</td><td>86</td><td>107</td><td class='pos'>+21</td><td>124.4%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-11</td><td>Корпус C</td><td>119</td><td>101</td><td class='neg'>-18</td><td>84.9%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-11</td><td>Кронштейн F</td><td>71</td><td>57</td><td class='neg'>-14</td><td>80.3%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-11</td><td>Модуль D</td><td>109</td><td>109</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-11</td><td>Плата H</td><td>123</td><td>122</td><td class='neg'>-1</td><td>99.2%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-11</td><td>Рама E</td><td>73</td><td>69</td><td class='neg'>-4</td><td>94.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-11</td><td>Узел B</td><td>105</td><td>112</td><td class='pos'>+7</td><td>106.7%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-11</td><td>Шток G</td><td>75</td><td>0</td><td class='neg'>-75</td><td>0.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-12</td><td>Деталь A</td><td>111</td><td>141</td><td class='pos'>+30</td><td>127.0%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-12</td><td>Корпус C</td><td>123</td><td>81</td><td class='neg'>-42</td><td>65.9%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-12</td><td>Кронштейн F</td><td>95</td><td>127</td><td class='pos'>+32</td><td>133.7%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-12</td><td>Модуль D</td><td>98</td><td>74</td><td class='neg'>-24</td><td>75.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-12</td><td>Плата H</td><td>103</td><td>115</td><td class='pos'>+12</td><td>111.7%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-12</td><td>Рама E</td><td>87</td><td>88</td><td class='pos'>+1</td><td>101.1%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-12</td><td>Узел B</td><td>73</td><td>77</td><td class='pos'>+4</td><td>105.5%</td></tr>
+<tr><td>Цех Alpha</td><td>2025-12</td><td>Шток G</td><td>113</td><td>119</td><td class='pos'>+6</td><td>105.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-01</td><td>Деталь A</td><td>79</td><td>130</td><td class='pos'>+51</td><td>164.6%</td></tr>
+<tr><td>Цех Beta</td><td>2025-01</td><td>Корпус C</td><td>83</td><td>78</td><td class='neg'>-5</td><td>94.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-01</td><td>Кронштейн F</td><td>84</td><td>97</td><td class='pos'>+13</td><td>115.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-01</td><td>Модуль D</td><td>100</td><td>151</td><td class='pos'>+51</td><td>151.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-01</td><td>Плата H</td><td>83</td><td>0</td><td class='neg'>-83</td><td>0.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-01</td><td>Рама E</td><td>117</td><td>83</td><td class='neg'>-34</td><td>70.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-01</td><td>Узел B</td><td>105</td><td>100</td><td class='neg'>-5</td><td>95.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-01</td><td>Шток G</td><td>77</td><td>106</td><td class='pos'>+29</td><td>137.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-02</td><td>Деталь A</td><td>92</td><td>71</td><td class='neg'>-21</td><td>77.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-02</td><td>Корпус C</td><td>126</td><td>107</td><td class='neg'>-19</td><td>84.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-02</td><td>Кронштейн F</td><td>85</td><td>96</td><td class='pos'>+11</td><td>112.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-02</td><td>Модуль D</td><td>109</td><td>115</td><td class='pos'>+6</td><td>105.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-02</td><td>Плата H</td><td>87</td><td>81</td><td class='neg'>-6</td><td>93.1%</td></tr>
+<tr><td>Цех Beta</td><td>2025-02</td><td>Рама E</td><td>90</td><td>100</td><td class='pos'>+10</td><td>111.1%</td></tr>
+<tr><td>Цех Beta</td><td>2025-02</td><td>Узел B</td><td>129</td><td>78</td><td class='neg'>-51</td><td>60.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-02</td><td>Шток G</td><td>114</td><td>64</td><td class='neg'>-50</td><td>56.1%</td></tr>
+<tr><td>Цех Beta</td><td>2025-03</td><td>Деталь A</td><td>116</td><td>89</td><td class='neg'>-27</td><td>76.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-03</td><td>Корпус C</td><td>93</td><td>98</td><td class='pos'>+5</td><td>105.4%</td></tr>
+<tr><td>Цех Beta</td><td>2025-03</td><td>Кронштейн F</td><td>129</td><td>106</td><td class='neg'>-23</td><td>82.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-03</td><td>Модуль D</td><td>95</td><td>70</td><td class='neg'>-25</td><td>73.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-03</td><td>Плата H</td><td>129</td><td>86</td><td class='neg'>-43</td><td>66.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-03</td><td>Рама E</td><td>94</td><td>109</td><td class='pos'>+15</td><td>116.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-03</td><td>Узел B</td><td>122</td><td>98</td><td class='neg'>-24</td><td>80.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-03</td><td>Шток G</td><td>129</td><td>121</td><td class='neg'>-8</td><td>93.8%</td></tr>
+<tr><td>Цех Beta</td><td>2025-04</td><td>Деталь A</td><td>114</td><td>79</td><td class='neg'>-35</td><td>69.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-04</td><td>Корпус C</td><td>98</td><td>110</td><td class='pos'>+12</td><td>112.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-04</td><td>Кронштейн F</td><td>70</td><td>108</td><td class='pos'>+38</td><td>154.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-04</td><td>Модуль D</td><td>84</td><td>103</td><td class='pos'>+19</td><td>122.6%</td></tr>
+<tr><td>Цех Beta</td><td>2025-04</td><td>Плата H</td><td>76</td><td>129</td><td class='pos'>+53</td><td>169.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-04</td><td>Рама E</td><td>114</td><td>77</td><td class='neg'>-37</td><td>67.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-04</td><td>Узел B</td><td>110</td><td>0</td><td class='neg'>-110</td><td>0.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-04</td><td>Шток G</td><td>94</td><td>92</td><td class='neg'>-2</td><td>97.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-05</td><td>Деталь A</td><td>78</td><td>108</td><td class='pos'>+30</td><td>138.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-05</td><td>Корпус C</td><td>70</td><td>77</td><td class='pos'>+7</td><td>110.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-05</td><td>Кронштейн F</td><td>93</td><td>113</td><td class='pos'>+20</td><td>121.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-05</td><td>Модуль D</td><td>113</td><td>102</td><td class='neg'>-11</td><td>90.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-05</td><td>Плата H</td><td>120</td><td>120</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-05</td><td>Рама E</td><td>77</td><td>100</td><td class='pos'>+23</td><td>129.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-05</td><td>Узел B</td><td>93</td><td>93</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-05</td><td>Шток G</td><td>80</td><td>93</td><td class='pos'>+13</td><td>116.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-06</td><td>Деталь A</td><td>86</td><td>100</td><td class='pos'>+14</td><td>116.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-06</td><td>Корпус C</td><td>104</td><td>77</td><td class='neg'>-27</td><td>74.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-06</td><td>Кронштейн F</td><td>128</td><td>87</td><td class='neg'>-41</td><td>68.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-06</td><td>Модуль D</td><td>104</td><td>82</td><td class='neg'>-22</td><td>78.8%</td></tr>
+<tr><td>Цех Beta</td><td>2025-06</td><td>Плата H</td><td>111</td><td>124</td><td class='pos'>+13</td><td>111.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-06</td><td>Рама E</td><td>102</td><td>102</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-06</td><td>Узел B</td><td>77</td><td>93</td><td class='pos'>+16</td><td>120.8%</td></tr>
+<tr><td>Цех Beta</td><td>2025-06</td><td>Шток G</td><td>74</td><td>103</td><td class='pos'>+29</td><td>139.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-07</td><td>Деталь A</td><td>108</td><td>72</td><td class='neg'>-36</td><td>66.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-07</td><td>Корпус C</td><td>110</td><td>135</td><td class='pos'>+25</td><td>122.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-07</td><td>Кронштейн F</td><td>78</td><td>88</td><td class='pos'>+10</td><td>112.8%</td></tr>
+<tr><td>Цех Beta</td><td>2025-07</td><td>Модуль D</td><td>97</td><td>72</td><td class='neg'>-25</td><td>74.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-07</td><td>Плата H</td><td>81</td><td>72</td><td class='neg'>-9</td><td>88.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-07</td><td>Рама E</td><td>76</td><td>134</td><td class='pos'>+58</td><td>176.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-07</td><td>Узел B</td><td>127</td><td>93</td><td class='neg'>-34</td><td>73.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-07</td><td>Шток G</td><td>77</td><td>110</td><td class='pos'>+33</td><td>142.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-08</td><td>Деталь A</td><td>103</td><td>106</td><td class='pos'>+3</td><td>102.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-08</td><td>Корпус C</td><td>117</td><td>117</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-08</td><td>Кронштейн F</td><td>93</td><td>85</td><td class='neg'>-8</td><td>91.4%</td></tr>
+<tr><td>Цех Beta</td><td>2025-08</td><td>Модуль D</td><td>124</td><td>92</td><td class='neg'>-32</td><td>74.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-08</td><td>Плата H</td><td>104</td><td>115</td><td class='pos'>+11</td><td>110.6%</td></tr>
+<tr><td>Цех Beta</td><td>2025-08</td><td>Рама E</td><td>92</td><td>60</td><td class='neg'>-32</td><td>65.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-08</td><td>Узел B</td><td>102</td><td>82</td><td class='neg'>-20</td><td>80.4%</td></tr>
+<tr><td>Цех Beta</td><td>2025-08</td><td>Шток G</td><td>106</td><td>96</td><td class='neg'>-10</td><td>90.6%</td></tr>
+<tr><td>Цех Beta</td><td>2025-09</td><td>Деталь A</td><td>113</td><td>109</td><td class='neg'>-4</td><td>96.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-09</td><td>Корпус C</td><td>91</td><td>119</td><td class='pos'>+28</td><td>130.8%</td></tr>
+<tr><td>Цех Beta</td><td>2025-09</td><td>Кронштейн F</td><td>70</td><td>91</td><td class='pos'>+21</td><td>130.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-09</td><td>Модуль D</td><td>96</td><td>144</td><td class='pos'>+48</td><td>150.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-09</td><td>Плата H</td><td>106</td><td>106</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-09</td><td>Рама E</td><td>104</td><td>119</td><td class='pos'>+15</td><td>114.4%</td></tr>
+<tr><td>Цех Beta</td><td>2025-09</td><td>Узел B</td><td>109</td><td>92</td><td class='neg'>-17</td><td>84.4%</td></tr>
+<tr><td>Цех Beta</td><td>2025-09</td><td>Шток G</td><td>104</td><td>134</td><td class='pos'>+30</td><td>128.8%</td></tr>
+<tr><td>Цех Beta</td><td>2025-10</td><td>Деталь A</td><td>116</td><td>107</td><td class='neg'>-9</td><td>92.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-10</td><td>Корпус C</td><td>72</td><td>89</td><td class='pos'>+17</td><td>123.6%</td></tr>
+<tr><td>Цех Beta</td><td>2025-10</td><td>Кронштейн F</td><td>95</td><td>93</td><td class='neg'>-2</td><td>97.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-10</td><td>Модуль D</td><td>70</td><td>98</td><td class='pos'>+28</td><td>140.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-10</td><td>Плата H</td><td>83</td><td>133</td><td class='pos'>+50</td><td>160.2%</td></tr>
+<tr><td>Цех Beta</td><td>2025-10</td><td>Рама E</td><td>74</td><td>70</td><td class='neg'>-4</td><td>94.6%</td></tr>
+<tr><td>Цех Beta</td><td>2025-10</td><td>Узел B</td><td>83</td><td>99</td><td class='pos'>+16</td><td>119.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-10</td><td>Шток G</td><td>124</td><td>82</td><td class='neg'>-42</td><td>66.1%</td></tr>
+<tr><td>Цех Beta</td><td>2025-11</td><td>Деталь A</td><td>108</td><td>131</td><td class='pos'>+23</td><td>121.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-11</td><td>Корпус C</td><td>78</td><td>116</td><td class='pos'>+38</td><td>148.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-11</td><td>Кронштейн F</td><td>95</td><td>70</td><td class='neg'>-25</td><td>73.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-11</td><td>Модуль D</td><td>84</td><td>74</td><td class='neg'>-10</td><td>88.1%</td></tr>
+<tr><td>Цех Beta</td><td>2025-11</td><td>Плата H</td><td>129</td><td>67</td><td class='neg'>-62</td><td>51.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-11</td><td>Рама E</td><td>84</td><td>139</td><td class='pos'>+55</td><td>165.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-11</td><td>Узел B</td><td>96</td><td>85</td><td class='neg'>-11</td><td>88.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-11</td><td>Шток G</td><td>111</td><td>96</td><td class='neg'>-15</td><td>86.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-12</td><td>Деталь A</td><td>82</td><td>88</td><td class='pos'>+6</td><td>107.3%</td></tr>
+<tr><td>Цех Beta</td><td>2025-12</td><td>Корпус C</td><td>101</td><td>115</td><td class='pos'>+14</td><td>113.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-12</td><td>Кронштейн F</td><td>121</td><td>93</td><td class='neg'>-28</td><td>76.9%</td></tr>
+<tr><td>Цех Beta</td><td>2025-12</td><td>Модуль D</td><td>108</td><td>74</td><td class='neg'>-34</td><td>68.5%</td></tr>
+<tr><td>Цех Beta</td><td>2025-12</td><td>Плата H</td><td>101</td><td>133</td><td class='pos'>+32</td><td>131.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-12</td><td>Рама E</td><td>118</td><td>0</td><td class='neg'>-118</td><td>0.0%</td></tr>
+<tr><td>Цех Beta</td><td>2025-12</td><td>Узел B</td><td>120</td><td>128</td><td class='pos'>+8</td><td>106.7%</td></tr>
+<tr><td>Цех Beta</td><td>2025-12</td><td>Шток G</td><td>130</td><td>90</td><td class='neg'>-40</td><td>69.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-01</td><td>Деталь A</td><td>73</td><td>93</td><td class='pos'>+20</td><td>127.4%</td></tr>
+<tr><td>Цех Delta</td><td>2025-01</td><td>Корпус C</td><td>80</td><td>82</td><td class='pos'>+2</td><td>102.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-01</td><td>Кронштейн F</td><td>86</td><td>100</td><td class='pos'>+14</td><td>116.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-01</td><td>Модуль D</td><td>125</td><td>58</td><td class='neg'>-67</td><td>46.4%</td></tr>
+<tr><td>Цех Delta</td><td>2025-01</td><td>Плата H</td><td>93</td><td>113</td><td class='pos'>+20</td><td>121.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-01</td><td>Рама E</td><td>128</td><td>81</td><td class='neg'>-47</td><td>63.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-01</td><td>Узел B</td><td>124</td><td>85</td><td class='neg'>-39</td><td>68.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-01</td><td>Шток G</td><td>107</td><td>88</td><td class='neg'>-19</td><td>82.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-02</td><td>Деталь A</td><td>74</td><td>129</td><td class='pos'>+55</td><td>174.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-02</td><td>Корпус C</td><td>103</td><td>108</td><td class='pos'>+5</td><td>104.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-02</td><td>Кронштейн F</td><td>80</td><td>88</td><td class='pos'>+8</td><td>110.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-02</td><td>Модуль D</td><td>75</td><td>101</td><td class='pos'>+26</td><td>134.7%</td></tr>
+<tr><td>Цех Delta</td><td>2025-02</td><td>Плата H</td><td>85</td><td>134</td><td class='pos'>+49</td><td>157.6%</td></tr>
+<tr><td>Цех Delta</td><td>2025-02</td><td>Рама E</td><td>91</td><td>111</td><td class='pos'>+20</td><td>122.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-02</td><td>Узел B</td><td>121</td><td>138</td><td class='pos'>+17</td><td>114.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-02</td><td>Шток G</td><td>117</td><td>96</td><td class='neg'>-21</td><td>82.1%</td></tr>
+<tr><td>Цех Delta</td><td>2025-03</td><td>Деталь A</td><td>102</td><td>140</td><td class='pos'>+38</td><td>137.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-03</td><td>Корпус C</td><td>129</td><td>119</td><td class='neg'>-10</td><td>92.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-03</td><td>Кронштейн F</td><td>85</td><td>127</td><td class='pos'>+42</td><td>149.4%</td></tr>
+<tr><td>Цех Delta</td><td>2025-03</td><td>Модуль D</td><td>128</td><td>0</td><td class='neg'>-128</td><td>0.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-03</td><td>Плата H</td><td>72</td><td>97</td><td class='pos'>+25</td><td>134.7%</td></tr>
+<tr><td>Цех Delta</td><td>2025-03</td><td>Рама E</td><td>75</td><td>123</td><td class='pos'>+48</td><td>164.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-03</td><td>Узел B</td><td>78</td><td>125</td><td class='pos'>+47</td><td>160.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-03</td><td>Шток G</td><td>98</td><td>66</td><td class='neg'>-32</td><td>67.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-04</td><td>Деталь A</td><td>89</td><td>83</td><td class='neg'>-6</td><td>93.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-04</td><td>Корпус C</td><td>128</td><td>128</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-04</td><td>Кронштейн F</td><td>95</td><td>73</td><td class='neg'>-22</td><td>76.8%</td></tr>
+<tr><td>Цех Delta</td><td>2025-04</td><td>Модуль D</td><td>105</td><td>113</td><td class='pos'>+8</td><td>107.6%</td></tr>
+<tr><td>Цех Delta</td><td>2025-04</td><td>Плата H</td><td>88</td><td>90</td><td class='pos'>+2</td><td>102.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-04</td><td>Рама E</td><td>88</td><td>106</td><td class='pos'>+18</td><td>120.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-04</td><td>Узел B</td><td>129</td><td>104</td><td class='neg'>-25</td><td>80.6%</td></tr>
+<tr><td>Цех Delta</td><td>2025-04</td><td>Шток G</td><td>72</td><td>89</td><td class='pos'>+17</td><td>123.6%</td></tr>
+<tr><td>Цех Delta</td><td>2025-05</td><td>Деталь A</td><td>89</td><td>96</td><td class='pos'>+7</td><td>107.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-05</td><td>Корпус C</td><td>76</td><td>125</td><td class='pos'>+49</td><td>164.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-05</td><td>Кронштейн F</td><td>102</td><td>73</td><td class='neg'>-29</td><td>71.6%</td></tr>
+<tr><td>Цех Delta</td><td>2025-05</td><td>Модуль D</td><td>121</td><td>99</td><td class='neg'>-22</td><td>81.8%</td></tr>
+<tr><td>Цех Delta</td><td>2025-05</td><td>Плата H</td><td>108</td><td>118</td><td class='pos'>+10</td><td>109.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-05</td><td>Рама E</td><td>110</td><td>82</td><td class='neg'>-28</td><td>74.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-05</td><td>Узел B</td><td>101</td><td>116</td><td class='pos'>+15</td><td>114.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-05</td><td>Шток G</td><td>109</td><td>0</td><td class='neg'>-109</td><td>0.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-06</td><td>Деталь A</td><td>87</td><td>112</td><td class='pos'>+25</td><td>128.7%</td></tr>
+<tr><td>Цех Delta</td><td>2025-06</td><td>Корпус C</td><td>70</td><td>123</td><td class='pos'>+53</td><td>175.7%</td></tr>
+<tr><td>Цех Delta</td><td>2025-06</td><td>Кронштейн F</td><td>126</td><td>122</td><td class='neg'>-4</td><td>96.8%</td></tr>
+<tr><td>Цех Delta</td><td>2025-06</td><td>Модуль D</td><td>80</td><td>89</td><td class='pos'>+9</td><td>111.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-06</td><td>Плата H</td><td>119</td><td>130</td><td class='pos'>+11</td><td>109.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-06</td><td>Рама E</td><td>97</td><td>112</td><td class='pos'>+15</td><td>115.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-06</td><td>Узел B</td><td>109</td><td>115</td><td class='pos'>+6</td><td>105.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-06</td><td>Шток G</td><td>94</td><td>104</td><td class='pos'>+10</td><td>110.6%</td></tr>
+<tr><td>Цех Delta</td><td>2025-07</td><td>Деталь A</td><td>92</td><td>111</td><td class='pos'>+19</td><td>120.7%</td></tr>
+<tr><td>Цех Delta</td><td>2025-07</td><td>Корпус C</td><td>99</td><td>96</td><td class='neg'>-3</td><td>97.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-07</td><td>Кронштейн F</td><td>76</td><td>74</td><td class='neg'>-2</td><td>97.4%</td></tr>
+<tr><td>Цех Delta</td><td>2025-07</td><td>Модуль D</td><td>111</td><td>89</td><td class='neg'>-22</td><td>80.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-07</td><td>Плата H</td><td>85</td><td>96</td><td class='pos'>+11</td><td>112.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-07</td><td>Рама E</td><td>104</td><td>0</td><td class='neg'>-104</td><td>0.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-07</td><td>Узел B</td><td>100</td><td>101</td><td class='pos'>+1</td><td>101.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-07</td><td>Шток G</td><td>129</td><td>103</td><td class='neg'>-26</td><td>79.8%</td></tr>
+<tr><td>Цех Delta</td><td>2025-08</td><td>Деталь A</td><td>95</td><td>113</td><td class='pos'>+18</td><td>118.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-08</td><td>Корпус C</td><td>126</td><td>64</td><td class='neg'>-62</td><td>50.8%</td></tr>
+<tr><td>Цех Delta</td><td>2025-08</td><td>Кронштейн F</td><td>118</td><td>94</td><td class='neg'>-24</td><td>79.7%</td></tr>
+<tr><td>Цех Delta</td><td>2025-08</td><td>Модуль D</td><td>121</td><td>67</td><td class='neg'>-54</td><td>55.4%</td></tr>
+<tr><td>Цех Delta</td><td>2025-08</td><td>Плата H</td><td>70</td><td>88</td><td class='pos'>+18</td><td>125.7%</td></tr>
+<tr><td>Цех Delta</td><td>2025-08</td><td>Рама E</td><td>129</td><td>97</td><td class='neg'>-32</td><td>75.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-08</td><td>Узел B</td><td>117</td><td>97</td><td class='neg'>-20</td><td>82.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-08</td><td>Шток G</td><td>71</td><td>139</td><td class='pos'>+68</td><td>195.8%</td></tr>
+<tr><td>Цех Delta</td><td>2025-09</td><td>Деталь A</td><td>117</td><td>124</td><td class='pos'>+7</td><td>106.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-09</td><td>Корпус C</td><td>74</td><td>109</td><td class='pos'>+35</td><td>147.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-09</td><td>Кронштейн F</td><td>128</td><td>92</td><td class='neg'>-36</td><td>71.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-09</td><td>Модуль D</td><td>106</td><td>0</td><td class='neg'>-106</td><td>0.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-09</td><td>Плата H</td><td>78</td><td>93</td><td class='pos'>+15</td><td>119.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-09</td><td>Рама E</td><td>101</td><td>73</td><td class='neg'>-28</td><td>72.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-09</td><td>Узел B</td><td>81</td><td>95</td><td class='pos'>+14</td><td>117.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-09</td><td>Шток G</td><td>124</td><td>135</td><td class='pos'>+11</td><td>108.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-10</td><td>Деталь A</td><td>110</td><td>100</td><td class='neg'>-10</td><td>90.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-10</td><td>Корпус C</td><td>88</td><td>149</td><td class='pos'>+61</td><td>169.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-10</td><td>Кронштейн F</td><td>72</td><td>86</td><td class='pos'>+14</td><td>119.4%</td></tr>
+<tr><td>Цех Delta</td><td>2025-10</td><td>Модуль D</td><td>117</td><td>86</td><td class='neg'>-31</td><td>73.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-10</td><td>Плата H</td><td>93</td><td>112</td><td class='pos'>+19</td><td>120.4%</td></tr>
+<tr><td>Цех Delta</td><td>2025-10</td><td>Рама E</td><td>85</td><td>139</td><td class='pos'>+54</td><td>163.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-10</td><td>Узел B</td><td>104</td><td>113</td><td class='pos'>+9</td><td>108.7%</td></tr>
+<tr><td>Цех Delta</td><td>2025-10</td><td>Шток G</td><td>89</td><td>82</td><td class='neg'>-7</td><td>92.1%</td></tr>
+<tr><td>Цех Delta</td><td>2025-11</td><td>Деталь A</td><td>123</td><td>73</td><td class='neg'>-50</td><td>59.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-11</td><td>Корпус C</td><td>102</td><td>79</td><td class='neg'>-23</td><td>77.5%</td></tr>
+<tr><td>Цех Delta</td><td>2025-11</td><td>Кронштейн F</td><td>80</td><td>65</td><td class='neg'>-15</td><td>81.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-11</td><td>Модуль D</td><td>93</td><td>107</td><td class='pos'>+14</td><td>115.1%</td></tr>
+<tr><td>Цех Delta</td><td>2025-11</td><td>Плата H</td><td>77</td><td>108</td><td class='pos'>+31</td><td>140.3%</td></tr>
+<tr><td>Цех Delta</td><td>2025-11</td><td>Рама E</td><td>121</td><td>113</td><td class='neg'>-8</td><td>93.4%</td></tr>
+<tr><td>Цех Delta</td><td>2025-11</td><td>Узел B</td><td>125</td><td>107</td><td class='neg'>-18</td><td>85.6%</td></tr>
+<tr><td>Цех Delta</td><td>2025-11</td><td>Шток G</td><td>118</td><td>107</td><td class='neg'>-11</td><td>90.7%</td></tr>
+<tr><td>Цех Delta</td><td>2025-12</td><td>Деталь A</td><td>105</td><td>125</td><td class='pos'>+20</td><td>119.0%</td></tr>
+<tr><td>Цех Delta</td><td>2025-12</td><td>Корпус C</td><td>109</td><td>95</td><td class='neg'>-14</td><td>87.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-12</td><td>Кронштейн F</td><td>117</td><td>83</td><td class='neg'>-34</td><td>70.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-12</td><td>Модуль D</td><td>89</td><td>107</td><td class='pos'>+18</td><td>120.2%</td></tr>
+<tr><td>Цех Delta</td><td>2025-12</td><td>Плата H</td><td>104</td><td>83</td><td class='neg'>-21</td><td>79.8%</td></tr>
+<tr><td>Цех Delta</td><td>2025-12</td><td>Рама E</td><td>104</td><td>106</td><td class='pos'>+2</td><td>101.9%</td></tr>
+<tr><td>Цех Delta</td><td>2025-12</td><td>Узел B</td><td>107</td><td>71</td><td class='neg'>-36</td><td>66.4%</td></tr>
+<tr><td>Цех Delta</td><td>2025-12</td><td>Шток G</td><td>94</td><td>0</td><td class='neg'>-94</td><td>0.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-01</td><td>Деталь A</td><td>94</td><td>104</td><td class='pos'>+10</td><td>110.6%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-01</td><td>Корпус C</td><td>87</td><td>86</td><td class='neg'>-1</td><td>98.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-01</td><td>Кронштейн F</td><td>71</td><td>122</td><td class='pos'>+51</td><td>171.8%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-01</td><td>Модуль D</td><td>115</td><td>113</td><td class='neg'>-2</td><td>98.3%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-01</td><td>Плата H</td><td>104</td><td>69</td><td class='neg'>-35</td><td>66.3%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-01</td><td>Рама E</td><td>87</td><td>93</td><td class='pos'>+6</td><td>106.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-01</td><td>Узел B</td><td>98</td><td>117</td><td class='pos'>+19</td><td>119.4%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-01</td><td>Шток G</td><td>123</td><td>97</td><td class='neg'>-26</td><td>78.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-02</td><td>Деталь A</td><td>85</td><td>90</td><td class='pos'>+5</td><td>105.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-02</td><td>Корпус C</td><td>110</td><td>82</td><td class='neg'>-28</td><td>74.5%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-02</td><td>Кронштейн F</td><td>73</td><td>89</td><td class='pos'>+16</td><td>121.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-02</td><td>Модуль D</td><td>105</td><td>129</td><td class='pos'>+24</td><td>122.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-02</td><td>Плата H</td><td>83</td><td>73</td><td class='neg'>-10</td><td>88.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-02</td><td>Рама E</td><td>102</td><td>90</td><td class='neg'>-12</td><td>88.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-02</td><td>Узел B</td><td>130</td><td>93</td><td class='neg'>-37</td><td>71.5%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-02</td><td>Шток G</td><td>102</td><td>96</td><td class='neg'>-6</td><td>94.1%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-03</td><td>Деталь A</td><td>90</td><td>81</td><td class='neg'>-9</td><td>90.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-03</td><td>Корпус C</td><td>89</td><td>87</td><td class='neg'>-2</td><td>97.8%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-03</td><td>Кронштейн F</td><td>76</td><td>146</td><td class='pos'>+70</td><td>192.1%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-03</td><td>Модуль D</td><td>125</td><td>100</td><td class='neg'>-25</td><td>80.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-03</td><td>Плата H</td><td>86</td><td>102</td><td class='pos'>+16</td><td>118.6%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-03</td><td>Рама E</td><td>77</td><td>91</td><td class='pos'>+14</td><td>118.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-03</td><td>Узел B</td><td>117</td><td>103</td><td class='neg'>-14</td><td>88.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-03</td><td>Шток G</td><td>72</td><td>76</td><td class='pos'>+4</td><td>105.6%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-04</td><td>Деталь A</td><td>102</td><td>0</td><td class='neg'>-102</td><td>0.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-04</td><td>Корпус C</td><td>81</td><td>79</td><td class='neg'>-2</td><td>97.5%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-04</td><td>Кронштейн F</td><td>91</td><td>102</td><td class='pos'>+11</td><td>112.1%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-04</td><td>Модуль D</td><td>128</td><td>107</td><td class='neg'>-21</td><td>83.6%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-04</td><td>Плата H</td><td>91</td><td>123</td><td class='pos'>+32</td><td>135.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-04</td><td>Рама E</td><td>120</td><td>104</td><td class='neg'>-16</td><td>86.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-04</td><td>Узел B</td><td>117</td><td>138</td><td class='pos'>+21</td><td>117.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-04</td><td>Шток G</td><td>124</td><td>113</td><td class='neg'>-11</td><td>91.1%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-05</td><td>Деталь A</td><td>115</td><td>77</td><td class='neg'>-38</td><td>67.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-05</td><td>Корпус C</td><td>107</td><td>74</td><td class='neg'>-33</td><td>69.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-05</td><td>Кронштейн F</td><td>120</td><td>99</td><td class='neg'>-21</td><td>82.5%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-05</td><td>Модуль D</td><td>107</td><td>0</td><td class='neg'>-107</td><td>0.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-05</td><td>Плата H</td><td>77</td><td>91</td><td class='pos'>+14</td><td>118.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-05</td><td>Рама E</td><td>114</td><td>120</td><td class='pos'>+6</td><td>105.3%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-05</td><td>Узел B</td><td>99</td><td>97</td><td class='neg'>-2</td><td>98.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-05</td><td>Шток G</td><td>123</td><td>119</td><td class='neg'>-4</td><td>96.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-06</td><td>Деталь A</td><td>96</td><td>119</td><td class='pos'>+23</td><td>124.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-06</td><td>Корпус C</td><td>103</td><td>112</td><td class='pos'>+9</td><td>108.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-06</td><td>Кронштейн F</td><td>102</td><td>92</td><td class='neg'>-10</td><td>90.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-06</td><td>Модуль D</td><td>90</td><td>90</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-06</td><td>Плата H</td><td>116</td><td>87</td><td class='neg'>-29</td><td>75.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-06</td><td>Рама E</td><td>99</td><td>70</td><td class='neg'>-29</td><td>70.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-06</td><td>Узел B</td><td>96</td><td>109</td><td class='pos'>+13</td><td>113.5%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-06</td><td>Шток G</td><td>97</td><td>68</td><td class='neg'>-29</td><td>70.1%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-07</td><td>Деталь A</td><td>102</td><td>85</td><td class='neg'>-17</td><td>83.3%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-07</td><td>Корпус C</td><td>129</td><td>126</td><td class='neg'>-3</td><td>97.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-07</td><td>Кронштейн F</td><td>88</td><td>78</td><td class='neg'>-10</td><td>88.6%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-07</td><td>Модуль D</td><td>130</td><td>131</td><td class='pos'>+1</td><td>100.8%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-07</td><td>Плата H</td><td>104</td><td>122</td><td class='pos'>+18</td><td>117.3%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-07</td><td>Рама E</td><td>117</td><td>0</td><td class='neg'>-117</td><td>0.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-07</td><td>Узел B</td><td>74</td><td>122</td><td class='pos'>+48</td><td>164.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-07</td><td>Шток G</td><td>73</td><td>102</td><td class='pos'>+29</td><td>139.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-08</td><td>Деталь A</td><td>118</td><td>121</td><td class='pos'>+3</td><td>102.5%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-08</td><td>Корпус C</td><td>113</td><td>92</td><td class='neg'>-21</td><td>81.4%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-08</td><td>Кронштейн F</td><td>98</td><td>93</td><td class='neg'>-5</td><td>94.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-08</td><td>Модуль D</td><td>97</td><td>110</td><td class='pos'>+13</td><td>113.4%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-08</td><td>Плата H</td><td>122</td><td>0</td><td class='neg'>-122</td><td>0.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-08</td><td>Рама E</td><td>99</td><td>116</td><td class='pos'>+17</td><td>117.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-08</td><td>Узел B</td><td>86</td><td>0</td><td class='neg'>-86</td><td>0.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-08</td><td>Шток G</td><td>115</td><td>99</td><td class='neg'>-16</td><td>86.1%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-09</td><td>Деталь A</td><td>75</td><td>75</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-09</td><td>Корпус C</td><td>129</td><td>0</td><td class='neg'>-129</td><td>0.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-09</td><td>Кронштейн F</td><td>93</td><td>98</td><td class='pos'>+5</td><td>105.4%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-09</td><td>Модуль D</td><td>110</td><td>119</td><td class='pos'>+9</td><td>108.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-09</td><td>Плата H</td><td>118</td><td>105</td><td class='neg'>-13</td><td>89.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-09</td><td>Рама E</td><td>106</td><td>96</td><td class='neg'>-10</td><td>90.6%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-09</td><td>Узел B</td><td>104</td><td>121</td><td class='pos'>+17</td><td>116.3%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-09</td><td>Шток G</td><td>98</td><td>132</td><td class='pos'>+34</td><td>134.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-10</td><td>Деталь A</td><td>115</td><td>76</td><td class='neg'>-39</td><td>66.1%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-10</td><td>Корпус C</td><td>100</td><td>0</td><td class='neg'>-100</td><td>0.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-10</td><td>Кронштейн F</td><td>102</td><td>100</td><td class='neg'>-2</td><td>98.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-10</td><td>Модуль D</td><td>104</td><td>90</td><td class='neg'>-14</td><td>86.5%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-10</td><td>Плата H</td><td>130</td><td>89</td><td class='neg'>-41</td><td>68.5%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-10</td><td>Рама E</td><td>129</td><td>94</td><td class='neg'>-35</td><td>72.9%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-10</td><td>Узел B</td><td>122</td><td>83</td><td class='neg'>-39</td><td>68.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-10</td><td>Шток G</td><td>121</td><td>85</td><td class='neg'>-36</td><td>70.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-11</td><td>Деталь A</td><td>90</td><td>86</td><td class='neg'>-4</td><td>95.6%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-11</td><td>Корпус C</td><td>92</td><td>77</td><td class='neg'>-15</td><td>83.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-11</td><td>Кронштейн F</td><td>87</td><td>82</td><td class='neg'>-5</td><td>94.3%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-11</td><td>Модуль D</td><td>102</td><td>96</td><td class='neg'>-6</td><td>94.1%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-11</td><td>Плата H</td><td>111</td><td>101</td><td class='neg'>-10</td><td>91.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-11</td><td>Рама E</td><td>72</td><td>115</td><td class='pos'>+43</td><td>159.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-11</td><td>Узел B</td><td>101</td><td>84</td><td class='neg'>-17</td><td>83.2%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-11</td><td>Шток G</td><td>94</td><td>86</td><td class='neg'>-8</td><td>91.5%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-12</td><td>Деталь A</td><td>100</td><td>86</td><td class='neg'>-14</td><td>86.0%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-12</td><td>Корпус C</td><td>127</td><td>96</td><td class='neg'>-31</td><td>75.6%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-12</td><td>Кронштейн F</td><td>115</td><td>80</td><td class='neg'>-35</td><td>69.6%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-12</td><td>Модуль D</td><td>72</td><td>122</td><td class='pos'>+50</td><td>169.4%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-12</td><td>Плата H</td><td>119</td><td>121</td><td class='pos'>+2</td><td>101.7%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-12</td><td>Рама E</td><td>109</td><td>128</td><td class='pos'>+19</td><td>117.4%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-12</td><td>Узел B</td><td>123</td><td>89</td><td class='neg'>-34</td><td>72.4%</td></tr>
+<tr><td>Цех Epsilon</td><td>2025-12</td><td>Шток G</td><td>93</td><td>0</td><td class='neg'>-93</td><td>0.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-01</td><td>Деталь A</td><td>73</td><td>125</td><td class='pos'>+52</td><td>171.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-01</td><td>Корпус C</td><td>106</td><td>103</td><td class='neg'>-3</td><td>97.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-01</td><td>Кронштейн F</td><td>114</td><td>79</td><td class='neg'>-35</td><td>69.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-01</td><td>Модуль D</td><td>92</td><td>84</td><td class='neg'>-8</td><td>91.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-01</td><td>Плата H</td><td>112</td><td>111</td><td class='neg'>-1</td><td>99.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-01</td><td>Рама E</td><td>108</td><td>78</td><td class='neg'>-30</td><td>72.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-01</td><td>Узел B</td><td>99</td><td>81</td><td class='neg'>-18</td><td>81.8%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-01</td><td>Шток G</td><td>84</td><td>105</td><td class='pos'>+21</td><td>125.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-02</td><td>Деталь A</td><td>98</td><td>97</td><td class='neg'>-1</td><td>99.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-02</td><td>Корпус C</td><td>82</td><td>100</td><td class='pos'>+18</td><td>122.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-02</td><td>Кронштейн F</td><td>128</td><td>93</td><td class='neg'>-35</td><td>72.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-02</td><td>Модуль D</td><td>101</td><td>92</td><td class='neg'>-9</td><td>91.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-02</td><td>Плата H</td><td>91</td><td>62</td><td class='neg'>-29</td><td>68.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-02</td><td>Рама E</td><td>76</td><td>104</td><td class='pos'>+28</td><td>136.8%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-02</td><td>Узел B</td><td>105</td><td>133</td><td class='pos'>+28</td><td>126.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-02</td><td>Шток G</td><td>120</td><td>108</td><td class='neg'>-12</td><td>90.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-03</td><td>Деталь A</td><td>97</td><td>100</td><td class='pos'>+3</td><td>103.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-03</td><td>Корпус C</td><td>111</td><td>100</td><td class='neg'>-11</td><td>90.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-03</td><td>Кронштейн F</td><td>122</td><td>78</td><td class='neg'>-44</td><td>63.9%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-03</td><td>Модуль D</td><td>114</td><td>138</td><td class='pos'>+24</td><td>121.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-03</td><td>Плата H</td><td>97</td><td>102</td><td class='pos'>+5</td><td>105.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-03</td><td>Рама E</td><td>126</td><td>109</td><td class='neg'>-17</td><td>86.5%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-03</td><td>Узел B</td><td>71</td><td>86</td><td class='pos'>+15</td><td>121.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-03</td><td>Шток G</td><td>75</td><td>142</td><td class='pos'>+67</td><td>189.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-04</td><td>Деталь A</td><td>97</td><td>86</td><td class='neg'>-11</td><td>88.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-04</td><td>Корпус C</td><td>113</td><td>120</td><td class='pos'>+7</td><td>106.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-04</td><td>Кронштейн F</td><td>80</td><td>92</td><td class='pos'>+12</td><td>115.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-04</td><td>Модуль D</td><td>89</td><td>117</td><td class='pos'>+28</td><td>131.5%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-04</td><td>Плата H</td><td>124</td><td>108</td><td class='neg'>-16</td><td>87.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-04</td><td>Рама E</td><td>99</td><td>0</td><td class='neg'>-99</td><td>0.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-04</td><td>Узел B</td><td>113</td><td>89</td><td class='neg'>-24</td><td>78.8%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-04</td><td>Шток G</td><td>127</td><td>99</td><td class='neg'>-28</td><td>78.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-05</td><td>Деталь A</td><td>97</td><td>63</td><td class='neg'>-34</td><td>64.9%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-05</td><td>Корпус C</td><td>108</td><td>66</td><td class='neg'>-42</td><td>61.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-05</td><td>Кронштейн F</td><td>126</td><td>86</td><td class='neg'>-40</td><td>68.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-05</td><td>Модуль D</td><td>102</td><td>82</td><td class='neg'>-20</td><td>80.4%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-05</td><td>Плата H</td><td>126</td><td>86</td><td class='neg'>-40</td><td>68.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-05</td><td>Рама E</td><td>70</td><td>65</td><td class='neg'>-5</td><td>92.9%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-05</td><td>Узел B</td><td>94</td><td>82</td><td class='neg'>-12</td><td>87.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-05</td><td>Шток G</td><td>96</td><td>81</td><td class='neg'>-15</td><td>84.4%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-06</td><td>Деталь A</td><td>121</td><td>71</td><td class='neg'>-50</td><td>58.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-06</td><td>Корпус C</td><td>110</td><td>90</td><td class='neg'>-20</td><td>81.8%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-06</td><td>Кронштейн F</td><td>75</td><td>76</td><td class='pos'>+1</td><td>101.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-06</td><td>Модуль D</td><td>72</td><td>81</td><td class='pos'>+9</td><td>112.5%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-06</td><td>Плата H</td><td>96</td><td>116</td><td class='pos'>+20</td><td>120.8%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-06</td><td>Рама E</td><td>108</td><td>73</td><td class='neg'>-35</td><td>67.6%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-06</td><td>Узел B</td><td>82</td><td>103</td><td class='pos'>+21</td><td>125.6%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-06</td><td>Шток G</td><td>77</td><td>102</td><td class='pos'>+25</td><td>132.5%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-07</td><td>Деталь A</td><td>78</td><td>139</td><td class='pos'>+61</td><td>178.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-07</td><td>Корпус C</td><td>102</td><td>101</td><td class='neg'>-1</td><td>99.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-07</td><td>Кронштейн F</td><td>113</td><td>129</td><td class='pos'>+16</td><td>114.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-07</td><td>Модуль D</td><td>120</td><td>120</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-07</td><td>Плата H</td><td>84</td><td>98</td><td class='pos'>+14</td><td>116.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-07</td><td>Рама E</td><td>111</td><td>74</td><td class='neg'>-37</td><td>66.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-07</td><td>Узел B</td><td>106</td><td>0</td><td class='neg'>-106</td><td>0.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-07</td><td>Шток G</td><td>93</td><td>95</td><td class='pos'>+2</td><td>102.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-08</td><td>Деталь A</td><td>128</td><td>100</td><td class='neg'>-28</td><td>78.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-08</td><td>Корпус C</td><td>101</td><td>137</td><td class='pos'>+36</td><td>135.6%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-08</td><td>Кронштейн F</td><td>110</td><td>120</td><td class='pos'>+10</td><td>109.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-08</td><td>Модуль D</td><td>101</td><td>79</td><td class='neg'>-22</td><td>78.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-08</td><td>Плата H</td><td>118</td><td>123</td><td class='pos'>+5</td><td>104.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-08</td><td>Рама E</td><td>93</td><td>81</td><td class='neg'>-12</td><td>87.1%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-08</td><td>Узел B</td><td>123</td><td>105</td><td class='neg'>-18</td><td>85.4%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-08</td><td>Шток G</td><td>121</td><td>127</td><td class='pos'>+6</td><td>105.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-09</td><td>Деталь A</td><td>118</td><td>133</td><td class='pos'>+15</td><td>112.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-09</td><td>Корпус C</td><td>121</td><td>73</td><td class='neg'>-48</td><td>60.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-09</td><td>Кронштейн F</td><td>71</td><td>106</td><td class='pos'>+35</td><td>149.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-09</td><td>Модуль D</td><td>81</td><td>127</td><td class='pos'>+46</td><td>156.8%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-09</td><td>Плата H</td><td>118</td><td>116</td><td class='neg'>-2</td><td>98.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-09</td><td>Рама E</td><td>108</td><td>121</td><td class='pos'>+13</td><td>112.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-09</td><td>Узел B</td><td>127</td><td>115</td><td class='neg'>-12</td><td>90.6%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-09</td><td>Шток G</td><td>72</td><td>105</td><td class='pos'>+33</td><td>145.8%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-10</td><td>Деталь A</td><td>106</td><td>132</td><td class='pos'>+26</td><td>124.5%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-10</td><td>Корпус C</td><td>125</td><td>117</td><td class='neg'>-8</td><td>93.6%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-10</td><td>Кронштейн F</td><td>118</td><td>132</td><td class='pos'>+14</td><td>111.9%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-10</td><td>Модуль D</td><td>86</td><td>115</td><td class='pos'>+29</td><td>133.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-10</td><td>Плата H</td><td>71</td><td>149</td><td class='pos'>+78</td><td>209.9%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-10</td><td>Рама E</td><td>128</td><td>115</td><td class='neg'>-13</td><td>89.8%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-10</td><td>Узел B</td><td>118</td><td>94</td><td class='neg'>-24</td><td>79.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-10</td><td>Шток G</td><td>71</td><td>76</td><td class='pos'>+5</td><td>107.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-11</td><td>Деталь A</td><td>97</td><td>123</td><td class='pos'>+26</td><td>126.8%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-11</td><td>Корпус C</td><td>92</td><td>98</td><td class='pos'>+6</td><td>106.5%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-11</td><td>Кронштейн F</td><td>102</td><td>127</td><td class='pos'>+25</td><td>124.5%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-11</td><td>Модуль D</td><td>106</td><td>95</td><td class='neg'>-11</td><td>89.6%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-11</td><td>Плата H</td><td>88</td><td>97</td><td class='pos'>+9</td><td>110.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-11</td><td>Рама E</td><td>101</td><td>98</td><td class='neg'>-3</td><td>97.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-11</td><td>Узел B</td><td>123</td><td>96</td><td class='neg'>-27</td><td>78.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-11</td><td>Шток G</td><td>70</td><td>0</td><td class='neg'>-70</td><td>0.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-12</td><td>Деталь A</td><td>71</td><td>71</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-12</td><td>Корпус C</td><td>113</td><td>101</td><td class='neg'>-12</td><td>89.4%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-12</td><td>Кронштейн F</td><td>75</td><td>83</td><td class='pos'>+8</td><td>110.7%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-12</td><td>Модуль D</td><td>95</td><td>136</td><td class='pos'>+41</td><td>143.2%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-12</td><td>Плата H</td><td>124</td><td>102</td><td class='neg'>-22</td><td>82.3%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-12</td><td>Рама E</td><td>101</td><td>116</td><td class='pos'>+15</td><td>114.9%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-12</td><td>Узел B</td><td>122</td><td>0</td><td class='neg'>-122</td><td>0.0%</td></tr>
+<tr><td>Цех Gamma</td><td>2025-12</td><td>Шток G</td><td>101</td><td>117</td><td class='pos'>+16</td><td>115.8%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-01</td><td>Деталь A</td><td>101</td><td>89</td><td class='neg'>-12</td><td>88.1%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-01</td><td>Корпус C</td><td>91</td><td>128</td><td class='pos'>+37</td><td>140.7%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-01</td><td>Кронштейн F</td><td>96</td><td>79</td><td class='neg'>-17</td><td>82.3%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-01</td><td>Модуль D</td><td>92</td><td>98</td><td class='pos'>+6</td><td>106.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-01</td><td>Плата H</td><td>71</td><td>108</td><td class='pos'>+37</td><td>152.1%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-01</td><td>Рама E</td><td>71</td><td>113</td><td class='pos'>+42</td><td>159.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-01</td><td>Узел B</td><td>116</td><td>82</td><td class='neg'>-34</td><td>70.7%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-01</td><td>Шток G</td><td>111</td><td>69</td><td class='neg'>-42</td><td>62.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-02</td><td>Деталь A</td><td>95</td><td>138</td><td class='pos'>+43</td><td>145.3%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-02</td><td>Корпус C</td><td>109</td><td>84</td><td class='neg'>-25</td><td>77.1%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-02</td><td>Кронштейн F</td><td>112</td><td>87</td><td class='neg'>-25</td><td>77.7%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-02</td><td>Модуль D</td><td>102</td><td>0</td><td class='neg'>-102</td><td>0.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-02</td><td>Плата H</td><td>117</td><td>126</td><td class='pos'>+9</td><td>107.7%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-02</td><td>Рама E</td><td>78</td><td>130</td><td class='pos'>+52</td><td>166.7%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-02</td><td>Узел B</td><td>86</td><td>145</td><td class='pos'>+59</td><td>168.6%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-02</td><td>Шток G</td><td>123</td><td>69</td><td class='neg'>-54</td><td>56.1%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-03</td><td>Деталь A</td><td>108</td><td>86</td><td class='neg'>-22</td><td>79.6%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-03</td><td>Корпус C</td><td>111</td><td>87</td><td class='neg'>-24</td><td>78.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-03</td><td>Кронштейн F</td><td>104</td><td>91</td><td class='neg'>-13</td><td>87.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-03</td><td>Модуль D</td><td>124</td><td>77</td><td class='neg'>-47</td><td>62.1%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-03</td><td>Плата H</td><td>94</td><td>77</td><td class='neg'>-17</td><td>81.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-03</td><td>Рама E</td><td>95</td><td>104</td><td class='pos'>+9</td><td>109.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-03</td><td>Узел B</td><td>98</td><td>103</td><td class='pos'>+5</td><td>105.1%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-03</td><td>Шток G</td><td>119</td><td>109</td><td class='neg'>-10</td><td>91.6%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-04</td><td>Деталь A</td><td>93</td><td>86</td><td class='neg'>-7</td><td>92.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-04</td><td>Корпус C</td><td>129</td><td>95</td><td class='neg'>-34</td><td>73.6%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-04</td><td>Кронштейн F</td><td>126</td><td>78</td><td class='neg'>-48</td><td>61.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-04</td><td>Модуль D</td><td>127</td><td>140</td><td class='pos'>+13</td><td>110.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-04</td><td>Плата H</td><td>114</td><td>121</td><td class='pos'>+7</td><td>106.1%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-04</td><td>Рама E</td><td>76</td><td>101</td><td class='pos'>+25</td><td>132.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-04</td><td>Узел B</td><td>82</td><td>110</td><td class='pos'>+28</td><td>134.1%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-04</td><td>Шток G</td><td>105</td><td>118</td><td class='pos'>+13</td><td>112.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-05</td><td>Деталь A</td><td>89</td><td>73</td><td class='neg'>-16</td><td>82.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-05</td><td>Корпус C</td><td>77</td><td>75</td><td class='neg'>-2</td><td>97.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-05</td><td>Кронштейн F</td><td>83</td><td>119</td><td class='pos'>+36</td><td>143.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-05</td><td>Модуль D</td><td>115</td><td>102</td><td class='neg'>-13</td><td>88.7%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-05</td><td>Плата H</td><td>120</td><td>112</td><td class='neg'>-8</td><td>93.3%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-05</td><td>Рама E</td><td>85</td><td>126</td><td class='pos'>+41</td><td>148.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-05</td><td>Узел B</td><td>70</td><td>91</td><td class='pos'>+21</td><td>130.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-05</td><td>Шток G</td><td>81</td><td>87</td><td class='pos'>+6</td><td>107.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-06</td><td>Деталь A</td><td>92</td><td>79</td><td class='neg'>-13</td><td>85.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-06</td><td>Корпус C</td><td>97</td><td>111</td><td class='pos'>+14</td><td>114.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-06</td><td>Кронштейн F</td><td>101</td><td>83</td><td class='neg'>-18</td><td>82.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-06</td><td>Модуль D</td><td>103</td><td>97</td><td class='neg'>-6</td><td>94.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-06</td><td>Плата H</td><td>91</td><td>102</td><td class='pos'>+11</td><td>112.1%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-06</td><td>Рама E</td><td>71</td><td>0</td><td class='neg'>-71</td><td>0.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-06</td><td>Узел B</td><td>84</td><td>65</td><td class='neg'>-19</td><td>77.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-06</td><td>Шток G</td><td>92</td><td>113</td><td class='pos'>+21</td><td>122.8%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-07</td><td>Деталь A</td><td>120</td><td>133</td><td class='pos'>+13</td><td>110.8%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-07</td><td>Корпус C</td><td>127</td><td>105</td><td class='neg'>-22</td><td>82.7%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-07</td><td>Кронштейн F</td><td>127</td><td>93</td><td class='neg'>-34</td><td>73.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-07</td><td>Модуль D</td><td>130</td><td>130</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-07</td><td>Плата H</td><td>91</td><td>106</td><td class='pos'>+15</td><td>116.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-07</td><td>Рама E</td><td>91</td><td>91</td><td class=''>0</td><td>100.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-07</td><td>Узел B</td><td>94</td><td>77</td><td class='neg'>-17</td><td>81.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-07</td><td>Шток G</td><td>127</td><td>78</td><td class='neg'>-49</td><td>61.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-08</td><td>Деталь A</td><td>118</td><td>86</td><td class='neg'>-32</td><td>72.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-08</td><td>Корпус C</td><td>111</td><td>93</td><td class='neg'>-18</td><td>83.8%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-08</td><td>Кронштейн F</td><td>123</td><td>76</td><td class='neg'>-47</td><td>61.8%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-08</td><td>Модуль D</td><td>75</td><td>91</td><td class='pos'>+16</td><td>121.3%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-08</td><td>Плата H</td><td>129</td><td>0</td><td class='neg'>-129</td><td>0.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-08</td><td>Рама E</td><td>84</td><td>125</td><td class='pos'>+41</td><td>148.8%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-08</td><td>Узел B</td><td>121</td><td>93</td><td class='neg'>-28</td><td>76.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-08</td><td>Шток G</td><td>112</td><td>81</td><td class='neg'>-31</td><td>72.3%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-09</td><td>Деталь A</td><td>106</td><td>91</td><td class='neg'>-15</td><td>85.8%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-09</td><td>Корпус C</td><td>77</td><td>99</td><td class='pos'>+22</td><td>128.6%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-09</td><td>Кронштейн F</td><td>113</td><td>105</td><td class='neg'>-8</td><td>92.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-09</td><td>Модуль D</td><td>122</td><td>137</td><td class='pos'>+15</td><td>112.3%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-09</td><td>Плата H</td><td>74</td><td>141</td><td class='pos'>+67</td><td>190.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-09</td><td>Рама E</td><td>129</td><td>100</td><td class='neg'>-29</td><td>77.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-09</td><td>Узел B</td><td>102</td><td>93</td><td class='neg'>-9</td><td>91.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-09</td><td>Шток G</td><td>113</td><td>0</td><td class='neg'>-113</td><td>0.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-10</td><td>Деталь A</td><td>108</td><td>90</td><td class='neg'>-18</td><td>83.3%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-10</td><td>Корпус C</td><td>75</td><td>90</td><td class='pos'>+15</td><td>120.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-10</td><td>Кронштейн F</td><td>121</td><td>70</td><td class='neg'>-51</td><td>57.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-10</td><td>Модуль D</td><td>114</td><td>122</td><td class='pos'>+8</td><td>107.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-10</td><td>Плата H</td><td>116</td><td>77</td><td class='neg'>-39</td><td>66.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-10</td><td>Рама E</td><td>101</td><td>81</td><td class='neg'>-20</td><td>80.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-10</td><td>Узел B</td><td>73</td><td>80</td><td class='pos'>+7</td><td>109.6%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-10</td><td>Шток G</td><td>99</td><td>0</td><td class='neg'>-99</td><td>0.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-11</td><td>Деталь A</td><td>104</td><td>90</td><td class='neg'>-14</td><td>86.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-11</td><td>Корпус C</td><td>109</td><td>86</td><td class='neg'>-23</td><td>78.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-11</td><td>Кронштейн F</td><td>82</td><td>120</td><td class='pos'>+38</td><td>146.3%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-11</td><td>Модуль D</td><td>121</td><td>97</td><td class='neg'>-24</td><td>80.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-11</td><td>Плата H</td><td>129</td><td>101</td><td class='neg'>-28</td><td>78.3%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-11</td><td>Рама E</td><td>85</td><td>106</td><td class='pos'>+21</td><td>124.7%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-11</td><td>Узел B</td><td>124</td><td>90</td><td class='neg'>-34</td><td>72.6%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-11</td><td>Шток G</td><td>119</td><td>123</td><td class='pos'>+4</td><td>103.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-12</td><td>Деталь A</td><td>111</td><td>106</td><td class='neg'>-5</td><td>95.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-12</td><td>Корпус C</td><td>88</td><td>98</td><td class='pos'>+10</td><td>111.4%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-12</td><td>Кронштейн F</td><td>88</td><td>73</td><td class='neg'>-15</td><td>83.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-12</td><td>Модуль D</td><td>86</td><td>112</td><td class='pos'>+26</td><td>130.2%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-12</td><td>Плата H</td><td>127</td><td>101</td><td class='neg'>-26</td><td>79.5%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-12</td><td>Рама E</td><td>125</td><td>0</td><td class='neg'>-125</td><td>0.0%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-12</td><td>Узел B</td><td>99</td><td>93</td><td class='neg'>-6</td><td>93.9%</td></tr>
+<tr><td>Цех Zeta</td><td>2025-12</td><td>Шток G</td><td>97</td><td>73</td><td class='neg'>-24</td><td>75.3%</td></tr>
+</tbody></table>
+<h2>Итоги по цехам</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Цех</th>
+      <th>План</th>
+      <th>Факт</th>
+      <th>Отклонение</th>
+      <th>Выполнение %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Цех Alpha</td>
+      <td>9703</td>
+      <td>8595</td>
+      <td>-1108</td>
+      <td>88.6%</td>
+    </tr>
+    <tr>
+      <td>Цех Beta</td>
+      <td>9508</td>
+      <td>9219</td>
+      <td>-289</td>
+      <td>97.0%</td>
+    </tr>
+    <tr>
+      <td>Цех Delta</td>
+      <td>9599</td>
+      <td>9250</td>
+      <td>-349</td>
+      <td>96.4%</td>
+    </tr>
+    <tr>
+      <td>Цех Epsilon</td>
+      <td>9844</td>
+      <td>8728</td>
+      <td>-1116</td>
+      <td>88.7%</td>
+    </tr>
+    <tr>
+      <td>Цех Gamma</td>
+      <td>9726</td>
+      <td>9358</td>
+      <td>-368</td>
+      <td>96.2%</td>
+    </tr>
+    <tr>
+      <td>Цех Zeta</td>
+      <td>9844</td>
+      <td>8866</td>
+      <td>-978</td>
+      <td>90.1%</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Итоги по периодам</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Период</th>
+      <th>План</th>
+      <th>Факт</th>
+      <th>Отклонение</th>
+      <th>Выполнение %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2025-01</td>
+      <td>4680</td>
+      <td>4475</td>
+      <td>-205</td>
+      <td>95.6%</td>
+    </tr>
+    <tr>
+      <td>2025-02</td>
+      <td>4781</td>
+      <td>4679</td>
+      <td>-102</td>
+      <td>97.9%</td>
+    </tr>
+    <tr>
+      <td>2025-03</td>
+      <td>4828</td>
+      <td>4629</td>
+      <td>-199</td>
+      <td>95.9%</td>
+    </tr>
+    <tr>
+      <td>2025-04</td>
+      <td>4894</td>
+      <td>4617</td>
+      <td>-277</td>
+      <td>94.3%</td>
+    </tr>
+    <tr>
+      <td>2025-05</td>
+      <td>4838</td>
+      <td>4334</td>
+      <td>-504</td>
+      <td>89.6%</td>
+    </tr>
+    <tr>
+      <td>2025-06</td>
+      <td>4694</td>
+      <td>4241</td>
+      <td>-453</td>
+      <td>90.3%</td>
+    </tr>
+    <tr>
+      <td>2025-07</td>
+      <td>4916</td>
+      <td>4616</td>
+      <td>-300</td>
+      <td>93.9%</td>
+    </tr>
+    <tr>
+      <td>2025-08</td>
+      <td>5075</td>
+      <td>4557</td>
+      <td>-518</td>
+      <td>89.8%</td>
+    </tr>
+    <tr>
+      <td>2025-09</td>
+      <td>4882</td>
+      <td>4579</td>
+      <td>-303</td>
+      <td>93.8%</td>
+    </tr>
+    <tr>
+      <td>2025-10</td>
+      <td>4856</td>
+      <td>4484</td>
+      <td>-372</td>
+      <td>92.3%</td>
+    </tr>
+    <tr>
+      <td>2025-11</td>
+      <td>4786</td>
+      <td>4488</td>
+      <td>-298</td>
+      <td>93.8%</td>
+    </tr>
+    <tr>
+      <td>2025-12</td>
+      <td>4994</td>
+      <td>4317</td>
+      <td>-677</td>
+      <td>86.4%</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="footer">Экспорт WorkshopReport · 27.06.2026 19:59</div>
+</body></html>
