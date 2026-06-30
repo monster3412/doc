@@ -1,4 +1,5 @@
 # === ФАЙЛ: src/ui.py ===
+# === ФАЙЛ: src/ui.py ===
 """
 WorkshopReport 
 """
@@ -1526,6 +1527,147 @@ class ReportApp(tk.Tk):
             return len(self._all_data[0]) >= 11
         return False
 
+    def _draw_intensity_bars(self, ax, T, workshops_list, values, xlabel, title,
+                              label_fmt, category_fn, ref_value=None, ref_label=None,
+                              legend_labels=None):
+        """Рисует «дашборд-вывод» по цехам вместо обычной диаграммы:
+        — цеха отсортированы по убыванию показателя (лидеры/аутсайдеры сразу видны);
+        — у каждого цеха иконка-индикатор (🟢/🟡/🔴) и текстовый вывод
+          («Опережают» / «В норме» / «Отстают») вместо акцента на цифрах;
+        — сама горизонтальная полоска выступает мини-спарклайном загрузки;
+        — цифра показателя присутствует, но мелким, приглушённым текстом.
+        category_fn(value) -> (color, icon, conclusion_text)
+        """
+        items = []
+        for ws, v in zip(workshops_list, values):
+            is_nan = v is None or v != v
+            color, _icon, concl = category_fn(None if is_nan else v)
+            items.append((ws, v, is_nan, color, concl))
+
+        # Сортировка по убыванию загрузки; цеха без данных — в конец списка
+        items.sort(key=lambda it: (it[2], -(it[1] if not it[2] else 0)))
+
+        n = len(items)
+        ys = list(range(n))[::-1]  # верх графика = первое место (наибольшая загрузка)
+        # Для ширины столбца отрицательные значения визуально приводим к 0
+        # (текст со значением всё равно показывает реальное число)
+        bar_vals = [0.0 if (it[2] or it[1] < 0) else it[1] for it in items]
+        max_val = max(bar_vals) if any(v > 0 for v in bar_vals) else 1.0
+
+        # Увеличиваем высоту фигуры под список цехов, чтобы строки не слипались
+        fig = ax.get_figure()
+        fig.set_size_inches(8, max(3.4, 0.62 * n + 1.7))
+
+        bar_height = 0.62
+        # лёгкая тень для глубины
+        ax.barh(ys, bar_vals, height=bar_height, color='black', alpha=0.05, zorder=2)
+        bars = ax.barh(ys, bar_vals, height=bar_height,
+                        color=[it[3] for it in items],
+                        edgecolor='white', linewidth=1.1, alpha=0.95, zorder=3)
+
+        ax.set_yticks(ys)
+        ax.set_yticklabels([it[0] for it in items], fontsize=9.5, color=T['mpl_text'])
+        ax.set_ylim(-0.7, n - 0.3)
+
+        right = max_val * 1.62
+        if ref_value:
+            right = max(right, ref_value * 1.45)
+        left = -right * 0.05
+        ax.set_xlim(left, right)
+
+        # ── Сброс «протекших» тиков оси X (изначально под месяцы) ──
+        # выше по коду для линейных/столбчатых графиков ось X размечена под месяцы;
+        # здесь ось X — числовая шкала показателя, поэтому делаем её заново.
+        import matplotlib.ticker as _mticker
+        ax.xaxis.set_major_locator(_mticker.MaxNLocator(6))
+        ax.xaxis.set_major_formatter(_mticker.FuncFormatter(
+            lambda x, _pos: f"{x:.2f}" if abs(x) < 10 else f"{x:.0f}"))
+        ax.tick_params(axis='x', labelsize=8, rotation=0)
+
+        ax.set_xlabel(xlabel, color=T['mpl_tick'], fontsize=8)
+        ax.set_title(title, color=T['mpl_text'], fontsize=11, pad=30, fontweight='bold')
+        ax.set_axisbelow(True)
+        ax.grid(axis='x', color=T['mpl_grid'], linewidth=.7, linestyle='--')
+        ax.grid(axis='y', visible=False)
+        for side in ('top', 'right', 'left'):
+            ax.spines[side].set_visible(False)
+        ax.tick_params(axis='y', length=0)
+
+        # Иконки-индикаторы: цветные маркеры-точки слева от названия цеха
+        # (надёжнее, чем emoji-символы — не зависят от наличия эмодзи-шрифта)
+        for y, it in zip(ys, items):
+            ax.plot(left * 0.45, y, marker='o', markersize=9, color=it[3],
+                    markeredgecolor='white', markeredgewidth=0.8,
+                    clip_on=False, zorder=6)
+
+        if ref_value is not None and ref_value > 0:
+            ax.axvline(ref_value, color=T['muted'], linewidth=1.1, linestyle=(0, (4, 3)), zorder=4)
+            ax.text(ref_value, n - 0.15, ref_label or '', fontsize=7.5,
+                     color=T['muted'], va='bottom', ha='center')
+
+        # Главный акцент — текстовый вывод; цифра — мелким приглушённым текстом следом
+        for bar, it, v in zip(bars, items, bar_vals):
+            y = bar.get_y() + bar.get_height() / 2
+            x_text = v + right * 0.02
+            if it[2]:
+                ax.text(x_text, y, 'нет данных', va='center', ha='left',
+                        fontsize=8.5, color=T['muted'], style='italic')
+                continue
+            ax.text(x_text, y, it[4], va='center', ha='left',
+                    fontsize=9, fontweight='bold', color=it[3])
+            value_str = label_fmt(it[1])
+            # ширина под вывод приблизительная, чтобы цифра не наезжала на текст
+            offset = right * (0.018 * (len(it[4]) + 2))
+            ax.text(x_text + offset, y, value_str, va='center', ha='left',
+                    fontsize=7.5, color=T['muted'])
+
+        # ax.plot() для точек-индикаторов включает автомасштабирование заново,
+        # поэтому фиксируем итоговые границы оси X в самом конце
+        ax.set_xlim(left, right)
+        ax.set_autoscalex_on(False)
+
+        if legend_labels:
+            from matplotlib.patches import FancyBboxPatch
+            import matplotlib.lines as mlines
+
+            box = ax.get_position()
+            ax.set_position([box.x0, box.y0, box.width * 0.78, box.height])
+            legend_ax = ax.figure.add_axes([box.x0 + box.width * 0.79, box.y0, box.width * 0.21, box.height])
+            legend_ax.set_facecolor(T['mpl_bg'])
+            legend_ax.set_xlim(0, 1)
+            legend_ax.set_ylim(0, 1)
+            legend_ax.set_xticks([])
+            legend_ax.set_yticks([])
+            legend_ax.set_frame_on(False)
+
+            legend_ax.add_line(mlines.Line2D([-0.02, -0.02], [0, 1], color=T['mpl_grid'], linewidth=1.5, transform=legend_ax.transAxes, clip_on=False))
+
+            legend_ax.text(0.5, 1.08, 'Условные обозначения',
+                           ha='center', va='bottom', color=T['mpl_text'],
+                           fontsize=11, fontweight='bold', transform=legend_ax.transAxes)
+
+            n_items = len(legend_labels)
+            y_start = 0.84
+            item_spacing = 0.28
+            square_width = 0.35
+            square_height = 0.20
+            for idx, (clr, lbl) in enumerate(legend_labels):
+                y_pos = y_start - idx * item_spacing
+                legend_ax.add_patch(FancyBboxPatch(
+                    (0.08, y_pos - square_height / 2), square_width, square_height,
+                    boxstyle='round,pad=0.02',
+                    linewidth=0.6,
+                    edgecolor=clr,
+                    facecolor=clr,
+                    transform=legend_ax.transAxes,
+                    zorder=1,
+                    alpha=0.95,
+                ))
+                legend_ax.text(0.47, y_pos, lbl,
+                               ha='left', va='center', color=T['mpl_text'],
+                               fontsize=9, transform=legend_ax.transAxes)
+
+
     def _rebuild_chart(self):
         T = self._T
         if not self._view_data:
@@ -1564,8 +1706,8 @@ class ReportApp(tk.Tk):
                 completion_by_date.append((fact_sum / plan_sum * 100) if plan_sum else float('nan'))
 
             ax.plot(range(len(months)), completion_by_date, marker="o", color="#a78bfa",
-                    linewidth=2.2, markersize=6)
-            ax.axhline(100, color="#94a3b8", linestyle="--", linewidth=1)
+                    linewidth=2.2, markersize=6, label="Выполнение, %")
+            ax.axhline(100, color="#94a3b8", linestyle="--", linewidth=1, label="План (100%)")
             ax.set_xticks(range(len(months)))
             ax.set_xticklabels(months, rotation=35, ha="right", fontsize=8)
             ax.set_title("Выполнение плана по месяцам", color=T["mpl_text"], fontsize=10, pad=8)
@@ -1612,34 +1754,27 @@ class ReportApp(tk.Tk):
                 import numpy as _np
                 med = float(_np.nanmedian([v for v in intensities if not _np.isnan(v)])) if any([not _np.isnan(v) for v in intensities]) else 0.0
 
-                colors = []
-                for val in intensities:
-                    if _np.isnan(val):
-                        colors.append('#94a3b8')
-                    elif val < med * 0.9:
-                        colors.append('#34d399')
-                    elif val < med * 1.1:
-                        colors.append('#fbbf24')
-                    else:
-                        colors.append('#f87171')
+                def _category(val):
+                    if val is None:
+                        return ('#94a3b8', '⚪', 'нет данных')
+                    if val < med * 0.9:
+                        return ('#34d399', '🟢', 'Опережают')
+                    if val < med * 1.1:
+                        return ('#fbbf24', '🟡', 'В норме')
+                    return ('#f87171', '🔴', 'Отстают')
 
-                xs = range(len(workshops_list))
-                bars = ax.bar(xs, [v if not _np.isnan(v) else 0 for v in intensities],
-                              color=colors, edgecolor=T['mpl_bg'], linewidth=0.8, alpha=0.96, zorder=3)
-                ax.set_axisbelow(True)
-                ax.set_xticks(xs)
-                ax.set_xticklabels(workshops_list, rotation=30, ha='right', fontsize=8)
-                ax.set_ylabel('kWh / ед.', color=T['mpl_tick'], fontsize=8)
-                ax.set_title('Энергоёмкость по цехам', color=T['mpl_text'], fontsize=10, pad=8)
-                ax.set_ylim(bottom=0, top=max([v for v in intensities if not _np.isnan(v)] + [1]) * 1.18)
-                for side in ('top', 'right'):
-                    ax.spines[side].set_visible(False)
-
-                for bar, val in zip(bars, intensities):
-                    h = bar.get_height()
-                    label = f"{val:.2f}" if not _np.isnan(val) else "—"
-                    ax.text(bar.get_x() + bar.get_width()/2, h + max(0.5, h*0.02), label,
-                            ha='center', va='bottom', fontsize=8, color=T['mpl_text'])
+                self._draw_intensity_bars(
+                    ax, T, workshops_list, intensities,
+                    xlabel='kWh / ед.', title='Энергоёмкость по цехам — кто эффективнее',
+                    label_fmt=lambda v: f"{v:.2f} kWh/ед.",
+                    category_fn=_category,
+                    ref_value=med, ref_label='медиана',
+                    legend_labels=[
+                        ('#34d399', 'Опережают (экономичнее)'),
+                        ('#fbbf24', 'В норме'),
+                        ('#f87171', 'Отстают (расходуют больше)'),
+                    ],
+                )
             except Exception:
                 ax.text(0.5, 0.5, 'Нет данных по энергии', ha='center', va='center', transform=ax.transAxes)
 
@@ -1717,34 +1852,27 @@ class ReportApp(tk.Tk):
                 import numpy as _np
                 med = float(_np.nanmedian([v for v in intensities if not _np.isnan(v)])) if any([not _np.isnan(v) for v in intensities]) else 0.0
 
-                colors = []
-                for val in intensities:
-                    if _np.isnan(val):
-                        colors.append('#94a3b8')
-                    elif val < med * 0.9:
-                        colors.append('#34d399')
-                    elif val < med * 1.1:
-                        colors.append('#fbbf24')
-                    else:
-                        colors.append('#f87171')
+                def _category(val):
+                    if val is None:
+                        return ('#94a3b8', '⚪', 'нет данных')
+                    if val < med * 0.9:
+                        return ('#34d399', '🟢', 'Опережают')
+                    if val < med * 1.1:
+                        return ('#fbbf24', '🟡', 'В норме')
+                    return ('#f87171', '🔴', 'Отстают')
 
-                xs = range(len(workshops_list))
-                bars = ax.bar(xs, [v if not _np.isnan(v) else 0 for v in intensities],
-                              color=colors, edgecolor=T['mpl_bg'], linewidth=0.8, alpha=0.96, zorder=3)
-                ax.set_axisbelow(True)
-                ax.set_xticks(xs)
-                ax.set_xticklabels(workshops_list, rotation=30, ha='right', fontsize=8)
-                ax.set_ylabel('ч / ед.', color=T['mpl_tick'], fontsize=8)
-                ax.set_title('Трудоёмкость по цехам', color=T['mpl_text'], fontsize=10, pad=8)
-                ax.set_ylim(bottom=0, top=max([v for v in intensities if not _np.isnan(v)] + [1]) * 1.18)
-                for side in ('top', 'right'):
-                    ax.spines[side].set_visible(False)
-
-                for bar, val in zip(bars, intensities):
-                    h = bar.get_height()
-                    label = f"{val:.2f}" if not _np.isnan(val) else '—'
-                    ax.text(bar.get_x() + bar.get_width()/2, h + max(0.25, h*0.02), label,
-                            ha='center', va='bottom', fontsize=8, color=T['mpl_text'])
+                self._draw_intensity_bars(
+                    ax, T, workshops_list, intensities,
+                    xlabel='ч / ед.', title='Трудоёмкость по цехам — кто эффективнее',
+                    label_fmt=lambda v: f"{v:.2f} ч/ед.",
+                    category_fn=_category,
+                    ref_value=med, ref_label='медиана',
+                    legend_labels=[
+                        ('#34d399', 'Опережают (быстрее)'),
+                        ('#fbbf24', 'В норме'),
+                        ('#f87171', 'Отстают (дольше)'),
+                    ],
+                )
             except Exception:
                 ax.text(0.5, 0.5, 'Нет данных по трудоёмкости', ha='center', va='center', transform=ax.transAxes)
 
@@ -1774,36 +1902,27 @@ class ReportApp(tk.Tk):
                     util = (total_plan_time / total_fact_time * 100.0) if total_fact_time else float('nan')
                     utilizations.append(util)
 
-                colors = []
-                for val in utilizations:
-                    if val != val:
-                        colors.append('#94a3b8')
-                    elif 90 <= val <= 110:
-                        colors.append('#34d399')
-                    elif 80 <= val < 90 or 110 < val <= 120:
-                        colors.append('#fbbf24')
-                    else:
-                        colors.append('#f87171')
+                def _category(val):
+                    if val is None:
+                        return ('#94a3b8', '⚪', 'нет данных')
+                    if val < 90:
+                        return ('#fbbf24', '🟡', 'Недогруз')
+                    if val <= 110:
+                        return ('#34d399', '🟢', 'В норме')
+                    return ('#f87171', '🔴', 'Переработка')
 
-                xs = range(len(workshops_list))
-                bars = ax.bar(xs, [v if v == v else 0 for v in utilizations],
-                              color=colors, edgecolor=T['mpl_bg'], linewidth=0.8, alpha=0.96, zorder=3)
-                ax.set_axisbelow(True)
-                ax.set_xticks(xs)
-                ax.set_xticklabels(workshops_list, rotation=30, ha='right', fontsize=8)
-                ax.set_ylabel('%', color=T['mpl_tick'], fontsize=8)
-                ax.set_title('Использование времени по цехам', color=T['mpl_text'], fontsize=10, pad=8)
-                target = max([v for v in utilizations if v == v] + [100])
-                ax.set_ylim(bottom=0, top=max(target * 1.15, 110))
-                for side in ('top', 'right'):
-                    ax.spines[side].set_visible(False)
-                ax.axhline(100, color=T['muted'], linewidth=1, linestyle=':')
-
-                for bar, val in zip(bars, utilizations):
-                    h = bar.get_height()
-                    label = f"{val:.1f}%" if val == val else '—'
-                    ax.text(bar.get_x() + bar.get_width()/2, h + max(0.5, h*0.02), label,
-                            ha='center', va='bottom', fontsize=8, color=T['mpl_text'])
+                self._draw_intensity_bars(
+                    ax, T, workshops_list, utilizations,
+                    xlabel='%', title='Использование времени по цехам — кто как загружен',
+                    label_fmt=lambda v: f"{v:.1f}%",
+                    category_fn=_category,
+                    ref_value=100, ref_label='норма 100%',
+                    legend_labels=[
+                        ('#34d399', 'В норме (90–110%)'),
+                        ('#fbbf24', 'Недогруз (<90%)'),
+                        ('#f87171', 'Переработка (>110%)'),
+                    ],
+                )
             except Exception:
                 ax.text(0.5, 0.5, 'Нет данных по использованию времени', ha='center', va='center', transform=ax.transAxes)
 
@@ -1842,10 +1961,11 @@ class ReportApp(tk.Tk):
                 ax.annotate(f"{int(h):,}".replace(",", " "), xy=(b.get_x() + b.get_width() / 2, h), xytext=(0, 6),
                             textcoords="offset points", ha="center", va="bottom", color=T["mpl_text"], fontsize=8)
 
-        legend = ax.legend(fontsize=7.5, framealpha=.8,
-                           facecolor=T["mpl_bg"], edgecolor=T["mpl_grid"],
-                           labelcolor=T["mpl_text"])
-        fig.tight_layout(pad=1.4)
+        if self._chart_type not in ("energy_ws", "time_ws", "utilization_ws"):
+            legend = ax.legend(fontsize=7.5, framealpha=.8,
+                               facecolor=T["mpl_bg"], edgecolor=T["mpl_grid"],
+                               labelcolor=T["mpl_text"])
+            fig.tight_layout(pad=1.4)
 
         self._current_figure = fig
         self._chart_canvas   = FigureCanvasTkAgg(fig, master=self.chart_area)
@@ -1879,6 +1999,12 @@ class ReportApp(tk.Tk):
         header = ["Цех","Период","Продукт","План","Факт","Отклонение","Выполнение %"]
         if has_energy:
             header += ["Энергоёмкость","Трудоёмкость","Использование времени"]
+
+        OVER_THRESHOLD = 105.0
+        UNDER_THRESHOLD = 95.0
+        UTIL_OVER = 115.0
+        UTIL_UNDER = 85.0
+
         with open(path, "w", newline="", encoding="utf-8-sig") as f:
             w = csv.writer(f, delimiter=";")
             w.writerow(header)
@@ -1888,6 +2014,116 @@ class ReportApp(tk.Tk):
                 if has_energy:
                     row += [f"{r[11]:.2f}", f"{r[12]:.2f}", f"{r[13]:.1f}%"]
                 w.writerow(row)
+
+            # ── Данные графика «Столбцы: план / факт» (по цехам) ──
+            workshops_list = sorted({r[0] for r in self._view_data})
+            ws_plan_fact = {}
+            for ws in workshops_list:
+                sub = [r for r in self._view_data if r[0] == ws]
+                ws_plan_fact[ws] = (sum(r[3] for r in sub), sum(r[4] for r in sub))
+
+            w.writerow([])
+            w.writerow(["Данные графика: Столбцы (план / факт по цехам)"])
+            w.writerow(["Цех", "План", "Факт", "Отклонение", "Выполнение %"])
+            for ws, (p_sum, f_sum) in ws_plan_fact.items():
+                dev = f_sum - p_sum
+                pct_v = (f_sum / p_sum * 100.0) if p_sum else None
+                w.writerow([ws, int(p_sum), int(f_sum), int(dev),
+                            f"{pct_v:.1f}%" if pct_v is not None else "—"])
+
+            # ── Данные графика «Линия» (план / факт по месяцам) ──
+            months_list = sorted({r[1] for r in self._view_data})
+            w.writerow([])
+            w.writerow(["Данные графика: Линия (план / факт по месяцам)"])
+            w.writerow(["Период", "План", "Факт", "Отклонение", "Выполнение %"])
+            for m in months_list:
+                sub = [r for r in self._view_data if r[1] == m]
+                p_sum = sum(r[3] for r in sub)
+                f_sum = sum(r[4] for r in sub)
+                dev = f_sum - p_sum
+                pct_v = (f_sum / p_sum * 100.0) if p_sum else None
+                w.writerow([m, int(p_sum), int(f_sum), int(dev),
+                            f"{pct_v:.1f}%" if pct_v is not None else "—"])
+
+            # ── Данные графика «% выполнения плана» по месяцам ──
+            w.writerow([])
+            w.writerow(["Данные графика: % выполнения плана по месяцам"])
+            w.writerow(["Период", "Выполнение %"])
+            for m in months_list:
+                sub = [r for r in self._view_data if r[1] == m]
+                p_sum = sum(r[3] for r in sub)
+                f_sum = sum(r[4] for r in sub)
+                pct_v = (f_sum / p_sum * 100.0) if p_sum else None
+                w.writerow([m, f"{pct_v:.1f}%" if pct_v is not None else "—"])
+
+            # ── Данные графиков энергоёмкости / трудоёмкости / использования времени ──
+            if has_energy:
+                w.writerow([])
+                w.writerow(["Данные графика: Энергоёмкость и трудоёмкость по цехам"])
+                w.writerow(["Цех", "Энергоёмкость (кВт·ч/ед)", "Трудоёмкость (ч/ед)", "Использование времени (%)"])
+                for ws in workshops_list:
+                    sub = [r for r in self._view_data if r[0] == ws]
+                    total_energy = sum(r[8] for r in sub)
+                    total_time_plan = sum(r[9] for r in sub)
+                    total_time_fact = sum(r[10] for r in sub)
+                    total_qty = sum(r[4] for r in sub)
+                    energy_intensity = (total_energy / total_qty) if total_qty else 0.0
+                    time_intensity = (total_time_fact / total_qty) if total_qty else 0.0
+                    utilization = (total_time_plan / total_time_fact * 100.0) if total_time_fact else 0.0
+                    w.writerow([
+                        ws,
+                        f"{energy_intensity:.2f}",
+                        f"{time_intensity:.2f}",
+                        f"{utilization:.1f}%",
+                    ])
+
+            # ── Интерпретация результатов ──
+            over_ws, under_ws, normal_ws = [], [], []
+            for ws, (p_sum, f_sum) in ws_plan_fact.items():
+                if not p_sum:
+                    continue
+                pct_v = f_sum / p_sum * 100.0
+                if pct_v >= OVER_THRESHOLD:
+                    over_ws.append((ws, p_sum, f_sum, pct_v))
+                elif pct_v < UNDER_THRESHOLD:
+                    under_ws.append((ws, p_sum, f_sum, pct_v))
+                else:
+                    normal_ws.append((ws, p_sum, f_sum, pct_v))
+
+            w.writerow([])
+            w.writerow(["Интерпретация результатов"])
+            w.writerow(["Категория", "Цех", "План", "Факт", "Выполнение %", "Комментарий"])
+            for ws, p_sum, f_sum, pct_v in over_ws:
+                w.writerow(["Перевыполнение / возможна переработка", ws, int(p_sum), int(f_sum),
+                            f"{pct_v:.1f}%", f"Превышение плана на {pct_v - 100:.1f} п.п."])
+            for ws, p_sum, f_sum, pct_v in under_ws:
+                w.writerow(["Неудовлетворительный результат", ws, int(p_sum), int(f_sum),
+                            f"{pct_v:.1f}%", f"Невыполнение плана на {100 - pct_v:.1f} п.п."])
+            for ws, p_sum, f_sum, pct_v in normal_ws:
+                w.writerow(["В пределах нормы", ws, int(p_sum), int(f_sum), f"{pct_v:.1f}%", "—"])
+
+            if has_energy:
+                util_over_ws, util_under_ws = [], []
+                for ws in workshops_list:
+                    sub = [r for r in self._view_data if r[0] == ws]
+                    total_plan_time = sum(r[9] for r in sub)
+                    total_fact_time = sum(r[10] for r in sub)
+                    if not total_fact_time:
+                        continue
+                    util = total_plan_time / total_fact_time * 100.0
+                    if util >= UTIL_OVER:
+                        util_over_ws.append((ws, util))
+                    elif util < UTIL_UNDER:
+                        util_under_ws.append((ws, util))
+                w.writerow([])
+                w.writerow(["Категория", "Цех", "Использование времени %", "Комментарий"])
+                for ws, util in util_over_ws:
+                    w.writerow(["Переработка по времени", ws, f"{util:.1f}%",
+                                f"Фактическое время превышает плановое на {util - 100:.1f} п.п."])
+                for ws, util in util_under_ws:
+                    w.writerow(["Недогрузка по времени", ws, f"{util:.1f}%",
+                                f"Использование времени ниже нормы на {100 - util:.1f} п.п."])
+
         messagebox.showinfo("Экспорт", f"CSV сохранён:\n{path}")
 
     def _export_json(self):
@@ -1935,19 +2171,37 @@ class ReportApp(tk.Tk):
         for r in self._view_data:
             sign = "+" if r[5] > 0 else ""
             cls  = "pos" if r[5] > 0 else ("neg" if r[5] < 0 else "")
+            extra_cells = ""
+            if has_energy:
+                extra_cells = (
+                    f"<td>{r[11]:.2f}</td><td>{r[12]:.2f}</td>"
+                    f"<td>{r[13]:.1f}%</td>"
+                )
             rows_html += (
                 f"<tr><td>{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td>"
                 f"<td>{int(r[3]):,}</td><td>{int(r[4]):,}</td>"
                 f"<td class='{cls}'>{sign}{int(r[5]):,}</td>"
                 f"<td>{(f'{r[6]:.1f}%' if r[6] is not None else '—')}</td>"
-                f"<td>{r[11]:.2f}</td><td>{r[12]:.2f}</td>"
-                f"<td>{r[13]:.1f}%</td></tr>\n"
+                f"{extra_cells}</tr>\n"
             )
 
         df_columns = ["Цех","Период","Продукт","План","Факт","Отклонение","Выполнение %"]
         if has_energy:
             df_columns += ["Энергоёмкость","Трудоёмкость","Использование времени"]
-        df = pd.DataFrame(self._view_data, columns=df_columns)
+            # ВАЖНО: строки self._view_data содержат 14 полей (включая plan_energy/fact_energy/
+            # plan_time/fact_time), а в отчёт выводится только 10 — поэтому нужно явно выбрать
+            # совпадающие по смыслу столбцы, иначе pandas.DataFrame падает с ValueError
+            # "N columns passed, passed data had M columns" и экспорт HTML обрывается.
+            table_rows = [
+                [r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[11], r[12], r[13]]
+                for r in self._view_data
+            ]
+        else:
+            table_rows = [
+                [r[0], r[1], r[2], r[3], r[4], r[5], r[6]]
+                for r in self._view_data
+            ]
+        df = pd.DataFrame(table_rows, columns=df_columns)
         workshop_summary = (
             df.groupby("Цех", as_index=False)
               .agg(План=("План","sum"), Факт=("Факт","sum"))
@@ -1971,42 +2225,106 @@ class ReportApp(tk.Tk):
         workshop_html = workshop_summary.to_html(index=False, border=1)
         month_html = month_summary.to_html(index=False, border=1)
 
-        graph_html = ""
-        if self._current_figure is not None:
+        # ── Интерпретация результатов: где переработка, где неудовлетворительно ──
+        OVER_THRESHOLD = 105.0   # перевыполнение плана / возможная переработка
+        UNDER_THRESHOLD = 95.0   # невыполнение плана / неудовлетворительный результат
+        UTIL_OVER = 115.0        # использование времени выше нормы (переработка по часам)
+        UTIL_UNDER = 85.0        # использование времени ниже нормы (недогрузка)
+
+        over_ws, under_ws, normal_ws = [], [], []
+        for _, row in workshop_summary.iterrows():
+            plan_v = row["План"]
+            fact_v = row["Факт"]
+            pct_v = (fact_v / plan_v * 100) if plan_v else None
+            entry = (row["Цех"], plan_v, fact_v, pct_v)
+            if pct_v is None:
+                continue
+            if pct_v >= OVER_THRESHOLD:
+                over_ws.append(entry)
+            elif pct_v < UNDER_THRESHOLD:
+                under_ws.append(entry)
+            else:
+                normal_ws.append(entry)
+
+        util_over_ws, util_under_ws = [], []
+        if has_energy:
+            for ws in sorted({r[0] for r in self._view_data}):
+                sub = [r for r in self._view_data if r[0] == ws]
+                total_plan_time = sum(r[9] for r in sub)
+                total_fact_time = sum(r[10] for r in sub)
+                util = (total_plan_time / total_fact_time * 100.0) if total_fact_time else None
+                if util is None:
+                    continue
+                if util >= UTIL_OVER:
+                    util_over_ws.append((ws, util))
+                elif util < UTIL_UNDER:
+                    util_under_ws.append((ws, util))
+
+        def _ws_list_html(items, fmt):
+            return "".join(f"<li>{fmt(i)}</li>" for i in items) or "<li>—</li>"
+
+        interpretation_html = f"""
+<h2>Интерпретация результатов</h2>
+<div class="charts-grid">
+  <div class="chart-card">
+    <h2 style="color:#2f9e44">▲ Перевыполнение плана (возможна переработка)</h2>
+    <ul>{_ws_list_html(over_ws, lambda i: f"<b>{i[0]}</b>: факт {int(i[2]):,} при плане {int(i[1]):,} — {i[3]:.1f}% от плана")}</ul>
+  </div>
+  <div class="chart-card">
+    <h2 style="color:#c92a2a">▼ Неудовлетворительный результат (невыполнение плана)</h2>
+    <ul>{_ws_list_html(under_ws, lambda i: f"<b>{i[0]}</b>: факт {int(i[2]):,} при плане {int(i[1]):,} — {i[3]:.1f}% от плана")}</ul>
+  </div>
+  <div class="chart-card">
+    <h2 style="color:#718096">● В пределах нормы ({UNDER_THRESHOLD:.0f}–{OVER_THRESHOLD:.0f}%)</h2>
+    <ul>{_ws_list_html(normal_ws, lambda i: f"<b>{i[0]}</b>: {i[3]:.1f}% от плана")}</ul>
+  </div>
+</div>"""
+        if has_energy:
+            interpretation_html += f"""
+<div class="charts-grid">
+  <div class="chart-card">
+    <h2 style="color:#e67700">⏱ Переработка по времени (использование &gt; {UTIL_OVER:.0f}%)</h2>
+    <ul>{_ws_list_html(util_over_ws, lambda i: f"<b>{i[0]}</b>: {i[1]:.1f}% от планового времени")}</ul>
+  </div>
+  <div class="chart-card">
+    <h2 style="color:#3b5bdb">⏱ Недогрузка по времени (использование &lt; {UTIL_UNDER:.0f}%)</h2>
+    <ul>{_ws_list_html(util_under_ws, lambda i: f"<b>{i[0]}</b>: {i[1]:.1f}% от планового времени")}</ul>
+  </div>
+</div>"""
+
+        # ── Графики: сохраняем все доступные типы (как на вкладке «Графики») ──
+        def _save_chart(chart_type: str, filename: Path) -> bool:
+            original_type = self._chart_type
             try:
-                image_path = path.with_suffix(".png")
-                self._current_figure.savefig(image_path, bbox_inches="tight")
-                graph_html = f"<h2>График</h2>\n<img src=\"{image_path.name}\" alt=\"graph\" />"
+                self._set_chart_type(chart_type)
+                if self._current_figure is not None:
+                    self._current_figure.savefig(filename, bbox_inches="tight")
+                    return True
             except Exception:
-                graph_html = ""
-
-        charts_html = ""
-        if self._has_energy_data():
-            def _save_chart(chart_type: str, filename: Path) -> bool:
-                original_type = self._chart_type
-                try:
-                    self._set_chart_type(chart_type)
-                    if self._current_figure is not None:
-                        self._current_figure.savefig(filename, bbox_inches="tight")
-                        return True
-                except Exception:
-                    return False
-                finally:
-                    self._set_chart_type(original_type)
                 return False
+            finally:
+                self._set_chart_type(original_type)
+            return False
 
-            energy_ws_path = path.with_name(f"{path.stem}_energy_ws.png")
-            time_ws_path = path.with_name(f"{path.stem}_time_ws.png")
-            utilization_ws_path = path.with_name(f"{path.stem}_utilization_ws.png")
-            saved_energy_ws = _save_chart("energy_ws", energy_ws_path)
-            saved_time_ws = _save_chart("time_ws", time_ws_path)
-            saved_utilization_ws = _save_chart("utilization_ws", utilization_ws_path)
-            if saved_energy_ws:
-                charts_html += f"<h2>Энергоёмкость по цехам</h2><img src=\"{energy_ws_path.name}\" alt=\"energy_ws\" />\n"
-            if saved_time_ws:
-                charts_html += f"<h2>Трудоёмкость по цехам</h2><img src=\"{time_ws_path.name}\" alt=\"time_ws\" />\n"
-            if saved_utilization_ws:
-                charts_html += f"<h2>Использование времени по цехам</h2><img src=\"{utilization_ws_path.name}\" alt=\"utilization_ws\" />\n"
+        chart_defs = [("bar", "Столбцы: план / факт"), ("line", "Линия: план / факт по месяцам"),
+                      ("pct", "% выполнения плана")]
+        if self._has_energy_data():
+            chart_defs += [
+                ("energy_ws", "Энергоёмкость по цехам"),
+                ("time_ws", "Трудоёмкость по цехам"),
+                ("utilization_ws", "Использование времени по цехам"),
+            ]
+
+        cards = ""
+        for ct_id, ct_title in chart_defs:
+            img_path = path.with_name(f"{path.stem}_{ct_id}.png")
+            if _save_chart(ct_id, img_path):
+                cards += (
+                    f'<div class="chart-card"><h2>{ct_title}</h2>'
+                    f'<img src="{img_path.name}" alt="{ct_id}" /></div>\n'
+                )
+
+        charts_html = f'<h2>Графики</h2><div class="charts-grid">{cards}</div>' if cards else ""
 
         efficiency_summary_html = ""
         if has_energy:
@@ -2020,6 +2338,10 @@ class ReportApp(tk.Tk):
 </table>
 """
 
+        extra_headers = (
+            "<th>Энергоёмкость</th><th>Трудоёмкость</th><th>Использование времени</th>"
+            if has_energy else ""
+        )
         html = f"""<!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"/>
 <title>WorkshopReport</title>
@@ -2042,6 +2364,11 @@ tr:last-child td{{border-bottom:none}}
 tr:hover td{{background:#f7f9fc}}
 .pos{{color:#2f9e44;font-weight:600}}
 .neg{{color:#c92a2a;font-weight:600}}
+.charts-grid{{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:8px}}
+.chart-card{{background:#fff;border:1px solid #e2e8f0;border-radius:10px;
+             padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);flex:1 1 420px}}
+.chart-card h2{{margin-top:0;font-size:15px}}
+.chart-card img{{width:100%;height:auto;border-radius:6px}}
 .footer{{margin-top:20px;font-size:11px;color:#a0aec0}}
 </style></head><body>
 <h1>Отчёт по цехам</h1>
@@ -2058,14 +2385,14 @@ tr:hover td{{background:#f7f9fc}}
 <table>
 <thead><tr><th>Цех</th><th>Период</th><th>Продукт</th>
 <th>План</th><th>Факт</th><th>Отклонение</th><th>Выполнение %</th>
-<th>Энергоёмкость</th><th>Трудоёмкость</th><th>Использование времени</th></tr></thead>
+{extra_headers}</tr></thead>
 <tbody>{rows_html}</tbody></table>
 <h2>Итоги по цехам</h2>
 {workshop_html}
 <h2>Итоги по периодам</h2>
 {month_html}
 {efficiency_summary_html}
-{graph_html}
+{interpretation_html}
 {charts_html}
 <div class="footer">Экспорт WorkshopReport · {stamp}</div>
 </body></html>"""
